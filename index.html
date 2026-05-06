@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETI Full MCQ Exam - Summer 2026</title>
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --accent: #f2a154;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --light: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; background: #eef2f3; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 30px; }
+        h1 { color: var(--primary); margin-bottom: 5px; }
+        
+        /* Navigation Menu */
+        .main-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .unit-btn { 
+            background: var(--primary); color: white; border: none; padding: 20px; 
+            border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: 600; text-align: center;
+        }
+        .unit-btn:hover { background: var(--accent); transform: translateY(-3px); }
+        .full-btn { grid-column: span 2; background: #34495e; }
+
+        /* Quiz Interface */
+        #quiz-area { display: none; }
+        .progress-container { background: #eee; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        #progress-bar { background: var(--accent); height: 100%; width: 0%; transition: 0.3s; }
+        .question { font-size: 1.3rem; font-weight: bold; margin-bottom: 25px; color: #333; }
+        .options { display: grid; gap: 12px; }
+        .option { 
+            padding: 15px; border: 2px solid #ddd; border-radius: 8px; 
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .option:hover:not(.disabled) { border-color: var(--primary); background: #f0f7ff; }
+        .correct { background: #d4edda !important; border-color: var(--success) !important; color: #155724; font-weight: bold; }
+        .incorrect { background: #f8d7da !important; border-color: var(--error) !important; color: #721c24; }
+        .disabled { pointer-events: none; }
+
+        .footer { margin-top: 40px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-action { padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #next-btn { background: var(--primary); color: white; }
+        #next-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .exit-btn { background: #7f8c8d; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ETI COMPREHENSIVE MCQ BANK</h1>
+        <p> Summer 2026 Exam Preparation | by ??????? </p>
+    </header>
+
+    <!-- Menu Section -->
+    <div id="menu-area" class="main-menu">
+        <button class="unit-btn" onclick="initQuiz(1)">Unit 1: AI and ML (150 Qs)  total mark - 14 </button>
+        <button class="unit-btn" onclick="initQuiz(2)">Unit 2: IoT (100 Qs) total mark - 16</button>
+        <button class="unit-btn" onclick="initQuiz(3)">Unit 3: Blockchain (150 Qs) total mark - 12</button>
+        <button class="unit-btn" onclick="initQuiz(4)">Unit 4: Immersive Tech (140 Qs) total mark - 12</button>
+        <button class="unit-btn" onclick="initQuiz(5)">Unit 5: Forensics & Hacking (135 Qs) total mark - 16</button>
+        <button class="unit-btn full-btn" onclick="initQuiz('full')">Full Syllabus Master Test (All Questions) total unit mark = 70</button>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quiz-area">
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span id="unit-title" style="color: var(--primary); font-weight: bold;"></span>
+            <span id="score-counter">Score: 0</span>
+        </div>
+        <div id="q-text" class="question"></div>
+        <div id="options-grid" class="options"></div>
+
+        <div class="footer">
+            <button class="btn-action exit-btn" onclick="exitToMenu()">Exit to Menu</button>
+            <span id="q-count">Question 1/X</span>
+            <button id="next-btn" class="btn-action" onclick="loadNextQuestion()" disabled>Next Question</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// I have expanded the data to include every category you provided.
+const mcqData = {
+    1 : [
+    { "q": "Who is known as the 'Father of Artificial Intelligence'?", "o": ["Alan Turing", "Charles Babbage", "John McCarthy", "Elon Musk"], "a": 2 },
+    { "q": "What is the primary definition of Artificial Intelligence?", "o": ["Programming computers to play games", "The simulation of human intelligence processes by machines", "Making computers faster", "Creating robots that look like humans"], "a": 1 },
+    { "q": "The 'Turing Test' is designed to assess:", "o": ["How fast a computer computes", "Whether a machine can exhibit intelligent behavior equivalent to, or indistinguishable from, that of a human", "The battery life of a robot", "The storage capacity of an AI system"], "a": 1 },
+    { "q": "Which of the following is NOT a major goal of AI?", "o": ["To create expert systems", "To implement human intelligence in machines", "To replace all humans in the workforce", "To solve complex problems using reasoning"], "a": 2 },
+    { "q": "Weak AI is also known as:", "o": ["General AI", "Narrow AI", "Super AI", "Deep AI"], "a": 1 },
+    { "q": "Which type of AI is dedicated to one specific task?", "o": ["Artificial General Intelligence", "Artificial Narrow Intelligence", "Artificial Super Intelligence", "Strong AI"], "a": 1 },
+    { "q": "Apple's Siri, Amazon's Alexa, and Google Assistant are examples of:", "o": ["Artificial General Intelligence", "Artificial Super Intelligence", "Artificial Narrow Intelligence", "Reactive Machines"], "a": 2 },
+    { "q": "Artificial General Intelligence (AGI) refers to a system that:", "o": ["Can only play Chess", "Has intelligence equal to a human across a wide variety of tasks", "Is far superior to humans in every way", "Requires no electricity"], "a": 1 },
+    { "q": "Artificial Super Intelligence (ASI) is defined as:", "o": ["AI that is slightly smarter than a calculator", "AI that surpasses human intellect and ability in practically every field", "AI that can drive cars but not talk", "AI used in supermarkets"], "a": 1 },
+    { "q": "Which discipline is NOT typically considered part of the scope of AI?", "o": ["Computer Vision", "Natural Language Processing", "Civil Engineering Construction", "Robotics"], "a": 2 },
+    { "q": "The capability of a machine to imitate intelligent human behavior is called:", "o": ["Artificial Intelligence", "Data Mining", "Cloud Computing", "Blockchain"], "a": 0 },
+    { "q": "Which of the following is a component of AI that focuses on visual data?", "o": ["NLP", "Computer Vision", "Speech Recognition", "Expert Systems"], "a": 1 },
+    { "q": "NLP stands for:", "o": ["Natural Language Processing", "Neural Language Programming", "New Language Protocol", "Natural Learning Process"], "a": 0 },
+    { "q": "Which type of AI currently exists and is widely used today?", "o": ["ANI (Narrow)", "AGI (General)", "ASI (Super)", "Sentient AI"], "a": 0 },
+    { "q": "An AI system that creates a painting based on a text prompt is an example of:", "o": ["Analytical AI", "Generative AI", "Reactive AI", "Passive AI"], "a": 1 },
+    { "q": "IBM Watson is famous for winning which game show?", "o": ["Survivor", "Jeopardy!", "Wheel of Fortune", "Who Wants to Be a Millionaire"], "a": 1 },
+    { "q": "Which of the following is an advantage of AI?", "o": ["High cost of creation", "24/7 Availability", "Lack of creativity", "Unemployment concerns"], "a": 1 },
+    { "q": "Deep Blue, the chess-playing computer, is an example of:", "o": ["AGI", "ANI", "ASI", "Strong AI"], "a": 1 },
+    { "q": "The subset of AI that involves machines performing tasks without explicit programming is:", "o": ["Machine Learning", "Database Management", "Web Development", "Networking"], "a": 0 },
+    { "q": "Which term describes the point where AI surpasses human intelligence?", "o": ["The Event Horizon", "The Singularity", "The Turing Point", "The Neural Limit"], "a": 1 },
+    { "q": "Scope of AI includes 'Expert Systems'. What do they do?", "o": ["Play video games", "Emulate the decision-making ability of a human expert", "Design graphics", "Manage electricity"], "a": 1 },
+    { "q": "Self-driving cars primarily use which AI domains?", "o": ["Computer Vision and Machine Learning", "NLP and Text Generation", "Audio Synthesis only", "Database sorting"], "a": 0 },
+    { "q": "What is the main difference between Narrow AI and General AI?", "o": ["Narrow AI is faster", "Narrow AI is specific to tasks; General AI has human-like broad cognitive abilities", "General AI uses less power", "There is no difference"], "a": 1 },
+    { "q": "Which of the following is NOT a type of AI based on functionality?", "o": ["Reactive Machines", "Limited Memory", "Theory of Mind", "Python Script"], "a": 3 },
+    { "q": "'Theory of Mind' in AI refers to:", "o": ["Understanding that others have beliefs, desires, and intentions", "Storing past memories", "Reacting to current inputs only", "Calculating math problems"], "a": 0 },
+    { "q": "Machine Learning is a subset of:", "o": ["Deep Learning", "Artificial Intelligence", "Data Science only", "Robotics"], "a": 1 },
+    { "q": "The three main types of Machine Learning are:", "o": ["Supervised, Unsupervised, Reinforcement", "Cognitive, Neural, Robotic", "Static, Dynamic, Hybrid", "Linear, Logistic, Polynomial"], "a": 0 },
+    { "q": "In Supervised Learning, the algorithm learns from:", "o": ["Unlabeled data", "Labeled data", "No data", "Random noise"], "a": 1 },
+    { "q": "Predicting house prices based on size and location is a problem of:", "o": ["Classification", "Regression", "Clustering", "Reinforcement Learning"], "a": 1 },
+    { "q": "Classifying emails as 'Spam' or 'Not Spam' is an example of:", "o": ["Regression", "Classification", "Clustering", "Association"], "a": 1 },
+    { "q": "Which of the following is an Unsupervised Learning technique?", "o": ["Linear Regression", "Decision Trees", "K-Means Clustering", "Support Vector Machines"], "a": 2 },
+    { "q": "Unsupervised Learning is used for:", "o": ["Predicting a specific output value", "Finding hidden structures or patterns in data", "Playing games", "Classifying labeled images"], "a": 1 },
+    { "q": "Reinforcement Learning involves:", "o": ["An agent learning by interacting with an environment and receiving rewards/penalties", "Training on a fixed dataset of labeled images", "Grouping similar data points", "Predicting continuous values"], "a": 0 },
+    { "q": "In Reinforcement Learning, a positive feedback is called:", "o": ["Penalty", "Reward", "Error", "Loss"], "a": 1 },
+    { "q": "Which of the following is NOT a Supervised Learning algorithm?", "o": ["Linear Regression", "Logistic Regression", "K-Means Clustering", "Decision Tree"], "a": 2 },
+    { "q": "What is the 'Input' layer in a Neural Network?", "o": ["The layer that produces the result", "The layer that receives the initial data", "The layer where processing happens", "The hidden layer"], "a": 1 },
+    { "q": "Deep Learning is characterized by:", "o": ["Shallow neural networks", "Neural networks with many hidden layers", "Manual feature extraction", "Small datasets"], "a": 1 },
+    { "q": "Which is the correct flow of data in a simple Feed Forward Neural Network?", "o": ["Input -> Output -> Hidden", "Hidden -> Input -> Output", "Input -> Hidden -> Output", "Output -> Input -> Hidden"], "a": 2 },
+    { "q": "What is a 'Neuron' in the context of ANN?", "o": ["A biological cell", "A mathematical function that processes input and passes it to the next layer", "A storage unit", "A type of microchip"], "a": 1 },
+    { "q": "The process of adjusting weights in a neural network to minimize error is called:", "o": ["Forward Propagation", "Backpropagation", "Clustering", "Normalization"], "a": 1 },
+    { "q": "Which algorithm is commonly used for Image Recognition?", "o": ["CNN (Convolutional Neural Network)", "RNN (Recurrent Neural Network)", "K-Means", "Apriori"], "a": 0 },
+    { "q": "Which algorithm is commonly used for sequential data like text or speech?", "o": ["CNN", "RNN (Recurrent Neural Network)", "Linear Regression", "K-Means"], "a": 1 },
+    { "q": "Feature extraction in Traditional ML usually requires:", "o": ["Automatic detection by the model", "Human expertise (Manual intervention)", "No features", "Random guessing"], "a": 1 },
+    { "q": "Feature extraction in Deep Learning is:", "o": ["Manual", "Automated by the layers of the network", "Not required", "Done by the CPU"], "a": 1 },
+    { "q": "Overfitting in Machine Learning means:", "o": ["The model performs poorly on training data", "The model learns the training data too well, including noise, and fails on new data", "The model is too simple", "The model is too slow"], "a": 1 },
+    { "q": "Underfitting means:", "o": ["The model is too complex", "The model is too simple to capture the underlying pattern of the data", "The model has 100% accuracy", "The model takes too long to train"], "a": 1 },
+    { "q": "Which of the following is a classic example of Reinforcement Learning?", "o": ["Identifying cats in photos", "Predicting stock prices", "A robot learning to walk by trial and error", "Grouping customers by purchasing behavior"], "a": 2 },
+    { "q": "'Training Data' is used to:", "o": ["Test the model's performance", "Teach the model", "Validate the model", "Delete the model"], "a": 1 },
+    { "q": "'Testing Data' is used to:", "o": ["Train the model", "Evaluate the model's performance on unseen data", "Fix the code", "Design the database"], "a": 1 },
+    { "q": "The difference between Classification and Regression is:", "o": ["Classification predicts continuous values; Regression predicts categories", "Classification predicts categories; Regression predicts continuous values", "Both predict categories", "Both predict continuous values"], "a": 1 },
+    { "q": "Which is an application of Deep Learning?", "o": ["Self-driving cars", "Language Translation (like Google Translate)", "Facial Recognition", "All of the above"], "a": 3 },
+    { "q": "What does ANN stand for?", "o": ["Artificial Neutral Network", "Artificial Neural Network", "Automated Neural Network", "Applied Neural Network"], "a": 1 },
+    { "q": "Which learning type requires the most human effort for data preparation (labeling)?", "o": ["Unsupervised Learning", "Supervised Learning", "Reinforcement Learning", "Self-supervised Learning"], "a": 1 },
+    { "q": "Netflix's movie recommendation system largely uses:", "o": ["Robotics", "Machine Learning (Recommender Systems)", "Blockchain", "VR"], "a": 1 },
+    { "q": "In a Neural Network, what does the 'Activation Function' do?", "o": ["It stores the data", "It decides whether a neuron should be activated (fired) or not", "It connects to the internet", "It deletes the error"], "a": 1 },
+    { "q": "Common activation functions include:", "o": ["ReLU, Sigmoid, Tanh", "SQL, Python, Java", "HTTP, FTP, SMTP", "RGB, CMYK"], "a": 0 },
+    { "q": "A 'Loss Function' measures:", "o": ["How fast the model is", "The difference between the predicted output and the actual output", "The amount of data lost", "The memory usage"], "a": 1 },
+    { "q": "Gradient Descent is an algorithm used to:", "o": ["Increase the error", "Visualize data", "Optimize the weights to minimize the loss function", "Sort the data"], "a": 2 },
+    { "q": "Which is true about the relationship between AI, ML, and DL?", "o": ["ML is inside DL", "AI is inside ML", "DL is a subset of ML, which is a subset of AI", "They are three separate circles"], "a": 2 },
+    { "q": "Which type of ML allows a computer to learn from 'unstructured' data like images and text most effectively?", "o": ["Logistic Regression", "Deep Learning", "K-Means", "Decision Trees"], "a": 1 },
+    { "q": "Generative AI is capable of creating:", "o": ["New text", "New images", "New audio/video", "All of the above"], "a": 3 },
+    { "q": "The core architecture behind modern Large Language Models (LLMs) like GPT is:", "o": ["The Transformer", "The Perceptron", "The Random Forest", "The Autoencoder"], "a": 0 },
+    { "q": "Who introduced the Transformer architecture in the paper 'Attention Is All You Need'?", "o": ["Facebook", "Google Researchers", "IBM", "Microsoft"], "a": 1 },
+    { "q": "What is the key innovation of the Transformer architecture?", "o": ["Recurrence", "Convolution", "Self-Attention Mechanism", "Pooling layers"], "a": 2 },
+    { "q": "In Transformers, the 'Self-Attention' mechanism calculates:", "o": ["The importance of each word in a sequence relative to other words", "The total word count", "The grammar score", "The image resolution"], "a": 0 },
+    { "q": "'Multi-head Attention' means:", "o": ["The model has multiple brains", "Running the attention mechanism multiple times in parallel to capture different types of relationships", "Using multiple computers", "Focusing on the first and last word only"], "a": 1 },
+    { "q": "Why is 'Positional Encoding' necessary in Transformers?", "o": ["Because Transformers process data sequentially", "Because Transformers process data in parallel and have no inherent sense of order/sequence", "To encrypt the data", "To make the file size smaller"], "a": 1 },
+    { "q": "The Feed-Forward Neural Network in a Transformer block is applied:", "o": ["To the entire sequence at once", "To each position separately and identically", "Only to the first word", "Only to the output"], "a": 1 },
+    { "q": "'Layer Normalization' is used to:", "o": ["Stabilize the learning process and reduce training time", "Normalize the database tables", "Convert text to images", "Compress the model"], "a": 0 },
+    { "q": "An 'Encoder' in the Transformer architecture:", "o": ["Generates the final text", "Processes the input sequence and creates a representation", "Prints the output", "Deletes noise"], "a": 1 },
+    { "q": "A 'Decoder' in the Transformer architecture:", "o": ["Reads the input", "Takes the encoder's representation and generates the output sequence", "Is not used in Transformers", "Only processes images"], "a": 1 },
+    { "q": "BERT (Bidirectional Encoder Representations from Transformers) uses which part of the Transformer?", "o": ["Decoder only", "Encoder only", "Both Encoder and Decoder", "Neither"], "a": 1 },
+    { "q": "GPT (Generative Pre-trained Transformer) uses which part of the Transformer?", "o": ["Decoder only (stack of decoders)", "Encoder only", "Both Encoder and Decoder", "Neither"], "a": 0 },
+    { "q": "Which of the following is an application of Generative AI?", "o": ["Excel Spreadsheet calculations", "Writing code snippets (e.g., GitHub Copilot)", "Sorting a list of names", "Calculator app"], "a": 1 },
+    { "q": "DALL-E and Midjourney are examples of:", "o": ["Text-to-Text models", "Text-to-Image models", "Audio-to-Video models", "Image-to-Text models"], "a": 1 },
+    { "q": "'Hallucination' in Generative AI refers to:", "o": ["The model becoming conscious", "The model generating confident but factually incorrect information", "The model crashing", "The model running too fast"], "a": 1 },
+    { "q": "What is a 'Prompt' in the context of Generative AI?", "o": ["The Python code used to build the model", "The input text given by the user to guide the generation", "The output of the model", "The error message"], "a": 1 },
+    { "q": "In the 'Encoder-Decoder' structure, the 'Context Vector' is:", "o": ["The output of the Encoder passed to the Decoder", "The input data", "The final result", "The user's password"], "a": 0 },
+    { "q": "Which function is typically used in the Self-Attention mechanism to determine weights?", "o": ["Softmax", "Sigmoid", "Step function", "Sine function"], "a": 0 },
+    { "q": "'Residual Connections' (Skip connections) in Transformers help to:", "o": ["Skip the training process", "Solve the vanishing gradient problem in deep networks", "Skip bad data", "Connect to the internet"], "a": 1 },
+    { "q": "Which type of Generative AI is used for creating realistic human voices?", "o": ["Text-to-Image", "Text-to-Speech (Audio Generation)", "Video-to-Text", "Image-to-Image"], "a": 1 },
+    { "q": "Deepfakes are primarily created using:", "o": ["Linear Regression", "Generative Adversarial Networks (GANs) or Variational Autoencoders (VAEs)", "K-Means Clustering", "Spreadsheets"], "a": 1 },
+    { "q": "Transformers replaced which older architecture as the state-of-the-art for NLP?", "o": ["RNNs and LSTMs", "CNNs", "MLPs", "SVMs"], "a": 0 },
+    { "q": "What does the 'Pre-trained' in GPT stand for?", "o": ["The model is trained on a massive dataset before being fine-tuned for specific tasks", "The model is trained by a specific person", "The model is not trained yet", "The model is trained during the chat"], "a": 0 },
+    { "q": "Which is NOT a component of the standard Transformer block?", "o": ["Self-Attention", "Feed Forward Network", "Convolutional Layer", "Layer Normalization"], "a": 2 },
+    { "q": "Generative AI for Video Generation can:", "o": ["Create video clips from text prompts", "Only edit existing videos", "Only compress videos", "Not exist yet"], "a": 0 },
+    { "q": "Music Generation AI models learn:", "o": ["Musical theory rules explicitly", "Patterns in harmonies, melodies, and rhythms from raw audio data", "To play physical instruments", "Lyrics only"], "a": 1 },
+    { "q": "The size of a Generative AI model is often measured in:", "o": ["Megabytes only", "Number of Parameters (e.g., 175 Billion)", "Number of lines of code", "Screen size"], "a": 1 },
+    { "q": "Which mechanism allows the Transformer to look at previous words to predict the next word?", "o": ["Masked Self-Attention", "Pooling", "Dropout", "Padding"], "a": 0 },
+    { "q": "In Text Generation, 'Temperature' is a parameter that controls:", "o": ["The heat of the GPU", "The randomness/creativity of the output", "The length of the text", "The speed of generation"], "a": 1 },
+    { "q": "A higher 'Temperature' value (e.g., 0.9) results in:", "o": ["More predictable and repetitive text", "More random and creative text", "No text", "Errors"], "a": 1 },
+    { "q": "A lower 'Temperature' value (e.g., 0.1) results in:", "o": ["More deterministic and focused text", "Complete gibberish", "Colorful text", "Slower text"], "a": 0 },
+    { "q": "Foundational Models are:", "o": ["Small models for specific tasks", "Large models trained on broad data that can be adapted to many downstream tasks", "Hardware components", "Database schemas"], "a": 1 },
+    { "q": "Large Language Models (LLMs) are a subset of:", "o": ["Generative AI", "Computer Vision", "Robotics", "Blockchain"], "a": 0 },
+    { "q": "Which of the following is a challenge of Generative AI?", "o": ["Bias in generated content", "Copyright infringement", "Potential for misuse (Deepfakes)", "All of the above"], "a": 3 },
+    { "q": "What is the dual nature of AI in cybersecurity?", "o": ["It is only used by defenders", "It is only used by attackers", "It is used by both attackers (to exploit) and defenders (to protect)", "It is not used in cybersecurity"], "a": 2 },
+    { "q": "An 'Adversarial Attack' targets:", "o": ["The firewall", "The Machine Learning model itself", "The power supply", "The user's mouse"], "a": 1 },
+    { "q": "Adding a special 'noise' pattern to an image that is invisible to humans but causes an AI to misclassify a Stop sign as a Speed Limit sign is an example of:", "o": ["Phishing", "Adversarial Example/Attack", "SQL Injection", "DDoS"], "a": 1 },
+    { "q": "'AI Poisoning' attacks occur during which phase?", "o": ["The Inference (Usage) phase", "The Training phase", "The Deletion phase", "The Hardware assembly phase"], "a": 1 },
+    { "q": "The goal of Data Poisoning is to:", "o": ["Corrupt the training data so the model learns incorrect behaviors (backdoors)", "Steal the data", "Encrypt the data", "Speed up the training"], "a": 0 },
+    { "q": "'Evasion Attacks' occur during which phase?", "o": ["Training phase", "Inference (Test/Deployment) phase", "Coding phase", "Planning phase"], "a": 1 },
+    { "q": "Modifying a spam email slightly to bypass the AI spam filter is an example of:", "o": ["Poisoning", "Evasion Attack", "Extraction", "Denial of Service"], "a": 1 },
+    { "q": "What is a 'Model Inversion' or 'Model Extraction' attack?", "o": ["Stealing the physical server", "Attempting to reconstruct the training data or steal the model parameters by querying the AI system", "Turning the screen upside down", "Deleting the model"], "a": 1 },
+    { "q": "How can AI be used for 'Phishing'?", "o": ["By sending emails manually", "By generating highly personalized and convincing emails at scale (Spear Phishing)", "By catching fish", "By disabling the internet"], "a": 1 },
+    { "q": "'Deepfake' technology poses a security threat by:", "o": ["Creating fake videos of CEOs ordering money transfers", "Improving movie special effects", "Making video games realistic", "Compressing video files"], "a": 0 },
+    { "q": "What is 'AI-Powered Malware'?", "o": ["Malware that runs on AI hardware", "Malware that uses AI to adapt its behavior to avoid detection", "A virus that deletes AI files", "Antivirus software"], "a": 1 },
+    { "q": "MFA stands for:", "o": ["Multi-Factor Authentication", "Multiple File Access", "Main Factor Analysis", "Machine Factory Automation"], "a": 0 },
+    { "q": "Why is MFA a protection against AI password cracking?", "o": ["Because AI cannot guess passwords", "Because even if AI guesses the password, it cannot provide the second factor (like a OTP or fingerprint)", "It makes the password longer", "It slows down the internet"], "a": 1 },
+    { "q": "What is a 'Strong Password'?", "o": ["Your name and birthdate", "A long combination of letters, numbers, and symbols", "'password123'", "The word 'admin'"], "a": 1 },
+    { "q": "AI can assist in cybersecurity defense by:", "o": ["Ignoring all traffic", "Detecting anomalies and patterns of attacks faster than humans", "Shutting down the company", "Generating spam"], "a": 1 },
+    { "q": "'Zero-day exploits' are:", "o": ["Attacks on vulnerabilities that are not yet known to the software vendor/public", "Attacks that happen on Sunday", "Attacks that take 0 days to fix", "Basic viruses"], "a": 0 },
+    { "q": "How does 'Update Everything' help security?", "o": ["It uses more data", "It ensures software patches for known vulnerabilities are applied", "It changes the UI colors", "It resets the password"], "a": 1 },
+    { "q": "AI-driven 'Behavioral Analysis' is used to:", "o": ["Monitor user behavior to detect deviations that might indicate a compromised account", "Analyze stock markets only", "Check grammar", "Play games"], "a": 0 },
+    { "q": "'Secure your Network' involves:", "o": ["Using WEP (weak encryption)", "Using strong encryption (WPA3), Firewalls, and VPNs", "Leaving Wi-Fi open", "Disconnecting from the internet permanently"], "a": 1 },
+    { "q": "AI Poisoning is a threat to the concept of:", "o": ["Confidentiality", "Integrity (of the model/data)", "Availability", "Speed"], "a": 1 },
+    { "q": "A 'Sybil Attack' in the context of AI/Networks involves:", "o": ["One malicious node pretending to be many identities", "Stealing a password", "Physical damage", "Water damage"], "a": 0 },
+    { "q": "Generative AI can be used by attackers to:", "o": ["Write malicious code or exploit scripts", "Fix bugs", "Write documentation", "Create logos"], "a": 0 },
+    { "q": "What is 'Social Engineering'?", "o": ["Building bridges", "Manipulating people into divulging confidential information", "Programming robots", "Social media marketing"], "a": 1 },
+    { "q": "AI enhances Social Engineering by:", "o": ["Making it slower", "Automating the creation of convincing personas and messages", "Stopping it", "Making it expensive"], "a": 1 },
+    { "q": "'CAPTCHA' is designed to:", "o": ["Encrypt data", "Distinguish between human users and bots (automated scripts)", "Speed up login", "Store passwords"], "a": 1 },
+    { "q": "Advanced AI bots are now capable of:", "o": ["Solving many traditional CAPTCHAs", "Never solving CAPTCHAs", "Physical exercise", "None of the above"], "a": 0 },
+    { "q": "To secure mobile devices against AI attacks, one should:", "o": ["Jailbreak/Root the device", "Install apps from unknown sources", "Keep the OS updated and use biometric security", "Never turn the screen off"], "a": 2 },
+    { "q": "An 'Oracle Attack' in AI refers to:", "o": ["Attacking a specific database brand", "Exploiting the API feedback to learn about the model", "Attacking a prophet", "None of the above"], "a": 1 },
+    { "q": "Defense against Adversarial Attacks includes:", "o": ["Adversarial Training (training the model on adversarial examples)", "Removing the model", "Using older hardware", "Ignoring the problem"], "a": 0 },
+    { "q": "'Defensive Distillation' is a technique to:", "o": ["Make alcohol", "Make the AI model more robust against adversarial samples", "Compress the model", "Speed up the model"], "a": 1 },
+    { "q": "Which of the following is an example of Predictive AI?", "o": ["Generating a poem", "Forecasting weather or stock trends", "Editing a photo", "Playing music"], "a": 1 },
+    { "q": "In the context of IoT, AI is used for:", "o": ["Predictive Maintenance", "Manual switching", "Increasing power consumption", "Reducing internet speed"], "a": 0 },
+    { "q": "Which is a difference between AI and Robotics?", "o": ["Robotics involves physical hardware/actuators; AI is the intelligence/software", "They are identical", "Robotics is only software", "AI is only hardware"], "a": 0 },
+    { "q": "A 'Chatbot' is primarily an application of:", "o": ["Computer Vision", "NLP (Natural Language Processing)", "Robotics", "Blockchain"], "a": 1 },
+    { "q": "'Sentiment Analysis' determines:", "o": ["The word count of a text", "The emotional tone (Positive, Negative, Neutral) of a text", "The language of the text", "The author's name"], "a": 1 },
+    { "q": "Which of the following data types is used in 'Computer Vision'?", "o": ["Audio waves", "Text documents", "Pixels / Images / Video", "Spreadsheets"], "a": 2 },
+    { "q": "Google Photos' ability to search for 'Dog' and show all your dog photos is due to:", "o": ["Manual tagging", "Image Classification / Object Detection", "Text generation", "Magic"], "a": 1 },
+    { "q": "Recommendation Engines (like on Amazon) use:", "o": ["Unsupervised Learning (Clustering users) and Collaborative Filtering", "Random generation", "Hard-coded rules only", "Manual selection"], "a": 0 },
+    { "q": "Which sector uses AI for 'Fraud Detection'?", "o": ["Gaming", "Banking / Finance", "Entertainment", "Agriculture"], "a": 1 },
+    { "q": "In Agriculture, AI is used for:", "o": ["Crop monitoring and disease detection", "Generative art", "High frequency trading", "Chatbots"], "a": 0 },
+    { "q": "The 'Black Box' problem in AI refers to:", "o": ["The color of the computer", "The lack of interpretability/explainability of how Deep Learning models reach a decision", "The flight recorder of a plane", "A broken screen"], "a": 1 },
+    { "q": "'Explainable AI' (XAI) aims to:", "o": ["Make AI models more complex", "Make the decision-making process of AI transparent and understandable to humans", "Hide the logic", "Increase the cost"], "a": 1 },
+    { "q": "Which is a key component of a 'Smart City' powered by AI?", "o": ["Traffic management systems", "Smart waste management", "Energy grid optimization", "All of the above"], "a": 3 },
+    { "q": "'Biometrics' (FaceID, Fingerprint) uses AI for:", "o": ["Authentication and Identification", "Entertainment", "Storage", "Networking"], "a": 0 },
+    { "q": "Which of the following is a programming language popular for AI/ML?", "o": ["HTML", "Python", "CSS", "SQL"], "a": 1 },
+    { "q": "'TensorFlow' and 'PyTorch' are:", "o": ["Operating Systems", "Popular Deep Learning Libraries/Frameworks", "Video Games", "Antivirus software"], "a": 1 },
+    { "q": "A 'GPU' is preferred over a 'CPU' for training Deep Learning models because:", "o": ["GPUs have many cores and are better at parallel processing (matrix operations)", "GPUs are cheaper", "GPUs are smaller", "CPUs cannot do math"], "a": 0 },
+    { "q": "'Edge AI' refers to:", "o": ["AI processing happening on the cloud", "AI processing happening locally on the device (the edge) rather than the cloud", "AI on the edge of a cliff", "Experimental AI"], "a": 1 },
+    { "q": "Which is an ethical concern in AI?", "o": ["Algorithmic Bias", "Privacy violation", "Job displacement", "All of the above"], "a": 3 },
+    { "q": "'Data Augmentation' is used to:", "o": ["Reduce the amount of data", "Artificially increase the size of a training dataset by creating modified versions of images (flipping, rotating)", "Delete data", "Encrypt data"], "a": 1 },
+    { "q": "In the context of Transformers, 'Tokens' are:", "o": ["Digital coins", "Pieces of words/characters that the text is broken into for processing", "Rewards", "Passwords"], "a": 1 },
+    { "q": "A 'Knowledge Base' in an expert system represents:", "o": ["The memory (RAM)", "Facts and rules about a specific domain", "The internet", "The user interface"], "a": 1 },
+    { "q": "'Transfer Learning' involves:", "o": ["Moving data from one USB to another", "Taking a pre-trained model and fine-tuning it for a new, related task", "Learning to transfer money", "Starting from scratch every time"], "a": 1 },
+    { "q": "The 'Singularity' is a hypothetical future point where:", "o": ["Computers stop working", "Technology growth becomes uncontrollable and irreversible, often associated with ASI", "Everyone has a computer", "AI is banned"], "a": 1 },
+    { "q": "'Ransomware 2.0' typically utilizes AI to:", "o": ["Ask for less money", "Intelligently target the most valuable data and evade detection", "Run slower", "Decrypt files for free"], "a": 1 }
+  ],
+   2: [
+    { "q": "What is the full form of IoT?", "o": ["Internet of Technology", "Internet of Things", "Interconnection of Things", "Input of Things"], "a": 1 },
+    { "q": "Who coined the term 'Internet of Things'?", "o": ["Kevin Ashton", "Alan Turing", "John McCarthy", "Tim Berners-Lee"], "a": 0 },
+    { "q": "IoT is best defined as:", "o": ["A network of computers only", "A network of physical objects embedded with sensors, software, and other technologies to exchange data", "A software to browse the internet", "A wireless fidelity network"], "a": 1 },
+    { "q": "Which of the following is NOT a fundamental characteristic of IoT?", "o": ["Connectivity", "Dynamic Nature", "Static data processing", "Enormous Scale"], "a": 2 },
+    { "q": "The 'Things' in IoT refers to:", "o": ["Only smartphones", "Physical objects having unique identifiers and the ability to transfer data", "Only servers", "Only sensors"], "a": 1 },
+    { "q": "Which feature of IoT allows devices to dynamically adapt to changing contexts?", "o": ["Ambiguity", "Dynamic Nature", "Complexity", "Heterogeneity"], "a": 1 },
+    { "q": "Heterogeneity in IoT means:", "o": ["Devices from different hardware platforms and networks can interact with each other", "All devices must be from the same manufacturer", "All devices must use the same operating system", "Devices cannot communicate"], "a": 0 },
+    { "q": "Which of the following is a major application domain of IoT?", "o": ["Smart Cities", "Healthcare (IoMT)", "Agriculture", "All of the above"], "a": 3 },
+    { "q": "Smart Homes primarily use IoT for:", "o": ["Automation and Energy Efficiency", "Creating documents", "Web hosting", "Graphic design"], "a": 0 },
+    { "q": "In the context of IoT features, what does 'Sensing' imply?", "o": ["The ability to create data", "The ability to detect changes in the physical environment", "The ability to ignore inputs", "The ability to sleep"], "a": 1 },
+    { "q": "Which of the following is a limitation or challenge of IoT?", "o": ["Automation", "Security and Privacy", "Data Access", "Efficiency"], "a": 1 },
+    { "q": "What does 'IIoT' stand for?", "o": ["Internal Internet of Things", "Industrial Internet of Things", "Intelligent Internet of Things", "International Internet of Things"], "a": 1 },
+    { "q": "Which of the following improves the quality of life in Smart Cities using IoT?", "o": ["Smart Traffic Management", "Smart Waste Management", "Smart Street Lighting", "All of the above"], "a": 3 },
+    { "q": "The 'Unique Identity' feature in IoT ensures:", "o": ["Every object has a unique IP address or URI", "Every object looks different", "Every object has the same name", "Every object is expensive"], "a": 0 },
+    { "q": "IoT promotes 'Machine-to-Machine' (M2M) communication. What does this mean?", "o": ["Humans talking to machines", "Devices communicating with each other without direct human intervention", "Machines typing on a keyboard", "Humans sending emails"], "a": 1 },
+    { "q": "The 'Physical Design' of IoT refers to:", "o": ["The software algorithms", "The IoT devices (Nodes) and IoT Protocols", "The cloud servers", "The user interface"], "a": 1 },
+    { "q": "Which of the following is a component of an IoT Node?", "o": ["Processor", "Sensor/Actuator", "Communication Module", "All of the above"], "a": 3 },
+    { "q": "The 'Logical Design' of IoT refers to:", "o": ["The hardware circuits", "An abstract representation of entities and processes (Functional Blocks, Communication Models, APIs)", "The power supply", "The plastic casing"], "a": 1 },
+    { "q": "Which of the following is NOT a standard IoT Communication Model?", "o": ["Request-Response", "Publish-Subscribe", "Push-Pull", "Stop-Wait"], "a": 3 },
+    { "q": "In the 'Request-Response' communication model:", "o": ["The client sends a request and the server responds", "The server sends data without a request", "Data is pushed to a queue", "Devices communicate in a pair exclusively"], "a": 0 },
+    { "q": "In the 'Publish-Subscribe' model:", "o": ["Publishers send messages to topics, and Consumers subscribe to topics", "Client requests data directly from the server", "It is a synchronous communication", "Data is always pulled by the client"], "a": 0 },
+    { "q": "Which communication model involves a queue where producers push data and consumers pull data?", "o": ["Request-Response", "Push-Pull", "Exclusive Pair", "REST"], "a": 1 },
+    { "q": "REST-based communication APIs typically use which protocol?", "o": ["MQTT", "HTTP/HTTPS", "CoAP", "Zigbee"], "a": 1 },
+    { "q": "WebSocket APIs are preferred in IoT for:", "o": ["Static content", "Full-duplex, real-time communication", "Unidirectional communication", "Offline processing"], "a": 1 },
+    { "q": "Which is the bottom-most layer in the standard 3-layer IoT Architecture?", "o": ["Network Layer", "Perception (Sensing) Layer", "Application Layer", "Business Layer"], "a": 1 },
+    { "q": "The function of the 'Perception Layer' is to:", "o": ["Transmit data", "Process data", "Gather data from the environment using sensors", "Display data to the user"], "a": 2 },
+    { "q": "The 'Network Layer' in IoT architecture is responsible for:", "o": ["Sensing physical parameters", "Transmitting data from sensors to processing systems", "Making business decisions", "Storing data permanently"], "a": 1 },
+    { "q": "In the 5-layer IoT architecture, which layer is responsible for service management and data processing?", "o": ["Perception Layer", "Transport Layer", "Middleware (Processing) Layer", "Business Layer"], "a": 2 },
+    { "q": "Which IoT layer interacts directly with the end-user?", "o": ["Perception Layer", "Network Layer", "Application Layer", "Processing Layer"], "a": 2 },
+    { "q": "REST APIs follow which architectural style?", "o": ["Stateful", "Stateless", "Connected", "Complex"], "a": 1 },
+    { "q": "A 'Sensor' is a device that:", "o": ["Performs a physical action", "Detects changes in the environment and converts them into signals", "Processes the data", "Connects to the cloud"], "a": 1 },
+    { "q": "An 'Actuator' is a device that:", "o": ["Senses temperature", "Converts an electrical signal into a physical action (motion, light, etc.)", "Stores data", "Acts as a router"], "a": 1 },
+    { "q": "Which of the following is an example of a Sensor?", "o": ["DC Motor", "LED", "Thermistor (Temperature Sensor)", "Stepper Motor"], "a": 2 },
+    { "q": "Which of the following is an example of an Actuator?", "o": ["LDR (Light Dependent Resistor)", "Accelerometer", "Servo Motor", "Microphone"], "a": 2 },
+    { "q": "A 'Passive Sensor':", "o": ["Requires an external power source to operate", "Does not require an external power source (uses energy from the measured environment)", "Generates digital output only", "Cannot measure temperature"], "a": 1 },
+    { "q": "Which sensor is used to detect the presence of nearby objects without physical contact?", "o": ["Proximity Sensor", "Temperature Sensor", "Humidity Sensor", "Gas Sensor"], "a": 0 },
+    { "q": "An 'Accelerometer' measures:", "o": ["Speed of light", "Acceleration force (tilt, motion, vibration)", "Sound intensity", "Humidity"], "a": 1 },
+    { "q": "Which sensor is commonly used to measure distance (e.g., in robotics)?", "o": ["Ultrasonic Sensor", "Gas Sensor", "Smoke Sensor", "pH Sensor"], "a": 0 },
+    { "q": "A 'Relay' is used in IoT to:", "o": ["Measure voltage", "Switch high-voltage circuits using low-voltage signals (Actuator)", "Sense light", "Store code"], "a": 1 },
+    { "q": "Which sensor would you use to monitor air quality?", "o": ["Gas Sensor (e.g., MQ series)", "Touch Sensor", "Gyroscope", "Pressure Sensor"], "a": 0 },
+    { "q": "A 'Solenoid' is a type of:", "o": ["Linear Actuator", "Temperature Sensor", "Wireless Protocol", "Microcontroller"], "a": 0 },
+    { "q": "The output of a digital sensor is:", "o": ["Continuous voltage", "Discrete signals (0 or 1)", "Analog waves", "Mechanical motion"], "a": 1 },
+    { "q": "Which device converts analog sensor signals to digital data for the microcontroller?", "o": ["DAC (Digital to Analog Converter)", "ADC (Analog to Digital Converter)", "PWM", "UART"], "a": 1 },
+    { "q": "What is the role of a 'Microcontroller' in an IoT node?", "o": ["To sense the environment", "To process sensor data and control actuators", "To act as a motor", "To generate electricity"], "a": 1 },
+    { "q": "LDR stands for:", "o": ["Light Dependent Resistor", "Long Distance Router", "Low Data Rate", "Light Detecting Radar"], "a": 0 },
+    { "q": "Which generation of mobile network is characterized by 'Massive Machine Type Communication' (mMTC)?", "o": ["2G", "3G", "4G", "5G"], "a": 3 },
+    { "q": "Key characteristics of 5G relevant to IoT are:", "o": ["High Latency and Low Speed", "Ultra-low Latency, High Speed, and Massive Connectivity", "Analog voice calls only", "Low bandwidth"], "a": 1 },
+    { "q": "Latency in 5G refers to:", "o": ["The speed of download", "The time taken for data to travel from source to destination", "The number of devices connected", "The battery life"], "a": 1 },
+    { "q": "Which 5G feature is critical for 'Autonomous Vehicles' (Self-driving cars)?", "o": ["High data rates", "Ultra-Reliable Low Latency Communication (URLLC)", "Massive connectivity", "Voice clarity"], "a": 1 },
+    { "q": "NGN stands for:", "o": ["New Generation Node", "Next Generation Network", "Network Gateway Node", "None of the above"], "a": 1 },
+    { "q": "NGN is primarily a ______-based network.", "o": ["Circuit-switched", "Packet-based", "Analog", "Satellite-only"], "a": 1 },
+    { "q": "The NGN architecture is typically divided into which two main strata (layers)?", "o": ["Physical and Data Link", "Transport Stratum and Service Stratum", "Network and Application", "Hardware and Software"], "a": 1 },
+    { "q": "In NGN architecture, the 'Transport Stratum' is responsible for:", "o": ["Creating content", "Connectivity and transport of information", "Managing user accounts", "Providing specific services"], "a": 1 },
+    { "q": "In NGN architecture, the 'Service Stratum' is responsible for:", "o": ["Physical cabling", "IP addressing only", "Application services and session control", "Signal modulation"], "a": 2 },
+    { "q": "Which component in NGN converts media streams between different network types (e.g., PSTN and IP)?", "o": ["Media Gateway Controller (MGC)", "Media Gateway (MG)", "Application Server (AS)", "Router"], "a": 1 },
+    { "q": "What is the function of the 'Media Gateway Controller' (MGC) or 'Softswitch'?", "o": ["It physically converts voice signals", "It controls the Media Gateways and manages call signaling/logic", "It hosts websites", "It stores user passwords"], "a": 1 },
+    { "q": "The 'Application Server' (AS) in NGN:", "o": ["Converts analog to digital", "Executes service logic and hosts value-added services", "Routes packets", "Connects wires"], "a": 1 },
+    { "q": "Why is NGN important for IoT?", "o": ["It separates service provision from network transport, allowing flexible service creation", "It is older and more stable", "It uses only wires", "It blocks internet access"], "a": 0 },
+    { "q": "5G enables 'Network Slicing'. What is it?", "o": ["Cutting physical cables", "Creating multiple virtual networks on a single physical infrastructure to serve different needs", "Reducing network speed", "Dividing the internet into two parts"], "a": 1 },
+    { "q": "Which application area benefits most from 5G's 'Massive IoT'?", "o": ["Streaming 4K movies", "Smart Agriculture with thousands of soil sensors", "Making a phone call", "Sending an SMS"], "a": 1 },
+    { "q": "What is the role of Cloud Computing in IoT?", "o": ["To sense data", "To provide virtually unlimited storage and processing power for IoT data", "To consume power", "To act as a sensor"], "a": 1 },
+    { "q": "In a Cloud-based IoT architecture, the 'Gateway' acts as:", "o": ["A bridge between IoT devices/sensors and the Cloud", "A storage unit", "A display screen", "A power source"], "a": 0 },
+    { "q": "Which of the following is an advantage of using Cloud for IoT?", "o": ["High Latency", "Scalability and Cost-effectiveness", "Limited access", "Local processing only"], "a": 1 },
+    { "q": "In the Cloud-based IoT architecture, where does 'Data Analytics' primarily happen?", "o": ["On the sensor", "On the Cloud", "On the wire", "On the switch"], "a": 1 },
+    { "q": "SaaS in Cloud Computing stands for:", "o": ["Software as a Service", "Sensor as a System", "Storage as a Service", "Security as a Standard"], "a": 0 },
+    { "q": "PaaS in Cloud Computing stands for:", "o": ["Platform as a Service", "Product as a Service", "Protocol as a Standard", "Power as a Supply"], "a": 0 },
+    { "q": "IaaS in Cloud Computing stands for:", "o": ["Internet as a Service", "Infrastructure as a Service", "IoT as a Standard", "Intelligence as a System"], "a": 1 },
+    { "q": "Which IoT component is responsible for sending data to the cloud via the internet?", "o": ["Sensor", "Microcontroller with Communication Module (e.g., WiFi/GSM)", "Battery", "LED"], "a": 1 },
+    { "q": "What is a 'dashboard' in an IoT Cloud platform?", "o": ["The hardware casing", "A user interface to visualize data and control devices", "The power switch", "The coding terminal"], "a": 1 },
+    { "q": "Which is a popular Cloud platform for IoT?", "o": ["AWS IoT Core", "Microsoft Azure IoT", "Google Cloud IoT", "All of the above"], "a": 3 },
+    { "q": "Fog Computing or Edge Computing differs from Cloud Computing by:", "o": ["Processing data closer to the source (IoT devices) rather than a centralized cloud", "Being slower", "Using more water", "Not using the internet"], "a": 0 },
+    { "q": "Why might we use Edge Computing instead of Cloud Computing for some IoT tasks?", "o": ["To increase latency", "To reduce latency and bandwidth usage", "Because the cloud is full", "To make devices hotter"], "a": 1 },
+    { "q": "In the architecture of Cloud-based IoT, what is the flow of data?", "o": ["Cloud -> Sensor -> Gateway", "Sensor -> Gateway -> Internet -> Cloud", "Internet -> Gateway -> Sensor", "Gateway -> Sensor -> Cloud"], "a": 1 },
+    { "q": "Cloud computing allows IoT systems to handle 'Big Data'. What is Big Data?", "o": ["Data that is physically large in size on the screen", "Extremely large datasets that may be analyzed computationally to reveal patterns", "Data that is important", "Data written in capital letters"], "a": 1 },
+    { "q": "Which issue is most critical when sending IoT data to the public Cloud?", "o": ["Speed", "Data Security and Privacy", "Color of the interface", "Font size"], "a": 1 }
+  ],
+    3 : [
+    { "q": "Which of the following best defines Blockchain technology?", "o": ["A centralized database managed by a single administrator", "A distributed, decentralized, and immutable digital ledger", "A programming language used for web development", "An operating system for mobile devices"], "a": 1 },
+    { "q": "Who is credited with inventing the first functioning blockchain (Bitcoin)?", "o": ["Vitalik Buterin", "Elon Musk", "Satoshi Nakamoto", "Nick Szabo"], "a": 2 },
+    { "q": "What does 'DLT' stand for in the context of blockchain?", "o": ["Digital Ledger Technology", "Distributed Ledger Technology", "Decentralized Link Transfer", "Data Link Technology"], "a": 1 },
+    { "q": "Which of the following is NOT a key feature of Blockchain technology?", "o": ["Decentralization", "Immutability", "Transparency", "Centralized Authority"], "a": 3 },
+    { "q": "The feature of 'Decentralization' in blockchain means:", "o": ["Data is stored in one massive central server", "Control and decision-making are distributed across a network of nodes", "The network is controlled by the government", "Data cannot be accessed by anyone"], "a": 1 },
+    { "q": "What does 'Immutability' refer to in a blockchain?", "o": ["Data can be easily mutated or changed by anyone", "Once data is recorded on the blockchain, it cannot be altered or deleted", "The blockchain can automatically delete old data", "The network speed is constant"], "a": 1 },
+    { "q": "Transparency in a public blockchain implies that:", "o": ["Passwords of all users are visible", "All participants can view the transaction history and ledger state", "The hardware components are made of glass", "Only administrators can view the data"], "a": 1 },
+    { "q": "In a traditional centralized system, who holds the authority over the database?", "o": ["All users equally", "A single central entity or administrator", "No one", "The miners"], "a": 1 },
+    { "q": "Which of the following is a major drawback of traditional centralized systems compared to blockchain?", "o": ["Single point of failure", "Too much transparency", "Immutability of records", "Lack of administrators"], "a": 0 },
+    { "q": "How does a blockchain handle the 'Single Point of Failure' problem?", "o": ["By using a highly secure central server", "By duplicating the ledger across multiple independent nodes in the network", "By hiding the server locations", "By not storing any data"], "a": 1 },
+    { "q": "In traditional banking systems, transferring money across borders usually requires:", "o": ["No intermediaries", "Multiple intermediaries (clearing houses, correspondent banks)", "Cryptographic mining", "Smart contracts"], "a": 1 },
+    { "q": "What happens if a malicious user tries to alter a transaction record in a blockchain?", "o": ["The central administrator approves the change", "The hash of the block changes, invalidating it and all subsequent blocks", "The blockchain deletes the user's account", "The system automatically accepts the new data"], "a": 1 },
+    { "q": "Blockchain eliminates the need for 'Trust' in third parties. This environment is often called:", "o": ["Trust-heavy", "Trust-dependent", "Trustless", "Trusted"], "a": 2 },
+    { "q": "In terms of data operations, a traditional database uses CRUD (Create, Read, Update, Delete). A blockchain primarily uses:", "o": ["Create, Delete", "Read, Update", "Read, Write (Append-only)", "Update, Delete"], "a": 2 },
+    { "q": "The very first block in a blockchain is known as the:", "o": ["Alpha Block", "Genesis Block", "Master Block", "Root Block"], "a": 1 },
+    { "q": "How is consensus reached in a traditional centralized system?", "o": ["By a majority vote of all users", "The central authority makes the decision", "By solving cryptographic puzzles", "Through a lottery system"], "a": 1 },
+    { "q": "Which technology ensures that records in a blockchain are secure and mathematically verifiable?", "o": ["HTTP", "Cryptography", "HTML", "SQL"], "a": 1 },
+    { "q": "The 'Append-only' nature of blockchain means:", "o": ["You can only delete data", "You can only add new data; existing data cannot be overwritten", "You can attach files to emails", "You can modify previous blocks if you have the password"], "a": 1 },
+    { "q": "What is the role of an intermediary in a traditional financial transaction?", "o": ["To provide internet connection", "To verify, clear, and settle the transaction, often charging a fee", "To mine cryptocurrency", "To write smart contracts"], "a": 1 },
+    { "q": "Blockchain enables Peer-to-Peer (P2P) transactions. This means:", "o": ["Transactions must pass through a central hub", "Transactions occur directly between users without intermediaries", "Transactions are only for peers of the same age", "Transactions are free of cost"], "a": 1 },
+    { "q": "If a node in a blockchain network goes offline, what happens to the ledger?", "o": ["The ledger is lost forever", "The network stops functioning entirely", "The ledger remains secure and accessible via other active nodes", "The data is corrupted"], "a": 2 },
+    { "q": "High availability in blockchain systems is a direct result of:", "o": ["Centralization", "Distribution of data across many nodes", "Fast internet speeds", "High transaction fees"], "a": 1 },
+    { "q": "A distributed ledger is maintained by:", "o": ["A single database administrator", "A consensus of network participants (nodes)", "The government", "A central bank"], "a": 1 },
+    { "q": "In a traditional database, security relies heavily on:", "o": ["Cryptographic hashing of blocks", "Perimeter defense (firewalls) and access control", "Decentralized consensus", "Proof of Work"], "a": 1 },
+    { "q": "Which characteristic ensures that participants in a blockchain cannot deny their actions (non-repudiation)?", "o": ["Digital Signatures (using asymmetric cryptography)", "Proof of Work", "P2P Networking", "Decentralization"], "a": 0 },
+    { "q": "What are the three primary components of a Block in a blockchain?", "o": ["IP Address, MAC Address, Data", "Data, Hash of the block, Hash of the previous block", "Sender Name, Receiver Name, Amount", "HTML, CSS, JavaScript"], "a": 1 },
+    { "q": "What acts as a unique digital fingerprint for a block?", "o": ["Timestamp", "The Hash", "The Nonce", "The IP address"], "a": 1 },
+    { "q": "Which cryptographic hash algorithm is famously used in the Bitcoin blockchain?", "o": ["MD5", "SHA-1", "SHA-256", "RSA"], "a": 2 },
+    { "q": "What is the purpose of the 'Previous Hash' in a block?", "o": ["To link the current block to the previous block, creating a secure chain", "To store user passwords", "To compress the data", "To delete old transactions"], "a": 0 },
+    { "q": "A computer connected to a blockchain network is known as a:", "o": ["Server", "Node", "Router", "Switch"], "a": 1 },
+    { "q": "What is the function of a 'Full Node'?", "o": ["It only creates transactions", "It stores a complete copy of the entire blockchain ledger", "It only checks passwords", "It provides internet access"], "a": 1 },
+    { "q": "The process of validating new transactions and recording them on the global ledger is called:", "o": ["Surfing", "Mining", "Phishing", "Hashing"], "a": 1 },
+    { "q": "What is a 'Consensus Algorithm'?", "o": ["A method to hack a network", "A mechanism by which nodes agree on the validity of transactions and the state of the ledger", "An algorithm to generate random passwords", "A database querying language"], "a": 1 },
+    { "q": "Which consensus mechanism requires miners to solve complex mathematical puzzles to add a block?", "o": ["Proof of Stake (PoS)", "Proof of Authority (PoA)", "Proof of Work (PoW)", "Delegated Proof of Stake (DPoS)"], "a": 2 },
+    { "q": "In Proof of Stake (PoS), block creators (validators) are chosen based on:", "o": ["The amount of computing power they have", "The number of coins they hold and are willing to 'stake'", "Their geographical location", "Alphabetical order"], "a": 1 },
+    { "q": "What is a 'Nonce' in the context of blockchain mining?", "o": ["A networking protocol", "A random number added to the block data to help generate a valid hash", "A type of cryptocurrency", "A smart contract language"], "a": 1 },
+    { "q": "The 'Mempool' (Memory Pool) in blockchain architecture is:", "o": ["A storage area for deleted blocks", "A waiting area for unconfirmed transactions before they are added to a block", "A pool of liquid cooling for servers", "The database of all user passwords"], "a": 1 },
+    { "q": "In blockchain, asymmetric cryptography uses:", "o": ["Only one secret key for both encryption and decryption", "A Public Key and a Private Key pair", "No keys, only passwords", "Biometric data only"], "a": 1 },
+    { "q": "Which key is shared publicly to receive funds/data in a blockchain network?", "o": ["Private Key", "Public Key (Address)", "Master Key", "Hash Key"], "a": 1 },
+    { "q": "Which key must be kept secret and is used to sign transactions?", "o": ["Public Key", "Private Key", "Network Key", "Genesis Key"], "a": 1 },
+    { "q": "What is a 'Merkle Tree' (Hash Tree) used for in blockchain architecture?", "o": ["To grow virtual forests", "To efficiently summarize and verify the integrity of all transactions within a block", "To connect nodes physically", "To encrypt user names"], "a": 1 },
+    { "q": "The 'Block Header' typically contains all of the following EXCEPT:", "o": ["Previous Block Hash", "Timestamp", "The complete transaction data of every user", "Merkle Root"], "a": 2 },
+    { "q": "What does P2P stand for in blockchain network architecture?", "o": ["Point-to-Point", "Peer-to-Peer", "Public-to-Private", "Password-to-Password"], "a": 1 },
+    { "q": "A 'Fork' in blockchain terminology refers to:", "o": ["A tool used for mining", "A divergence or split in the blockchain's protocol or transaction history", "A method of encrypting data", "A hardware failure"], "a": 1 },
+    { "q": "A 'Hard Fork' means:", "o": ["A temporary split that resolves automatically", "A backward-incompatible upgrade requiring all nodes to update to the new protocol", "Breaking the server rack", "Losing a private key"], "a": 1 },
+    { "q": "A 'Soft Fork' means:", "o": ["A backward-compatible upgrade where old nodes still recognize new blocks", "A permanent split into two different cryptocurrencies", "Deleting the blockchain", "Lowering security settings"], "a": 0 },
+    { "q": "Why is changing data in a blockchain computationally impractical?", "o": ["Because you have to ask the CEO for permission", "Changing one block changes its hash, which breaks the link to the next block, requiring recalculation of all subsequent blocks", "Because the data is stored offline", "Because internet speeds are too slow"], "a": 1 },
+    { "q": "The role of 'Miners' in a PoW network is primarily to:", "o": ["Increase the price of the coin", "Validate transactions and secure the network by creating new blocks", "Write smart contracts", "Develop the blockchain software"], "a": 1 },
+    { "q": "Which of the following defines the 'Difficulty' in mining?", "o": ["How hard the hardware is to build", "A measure of how difficult it is to find a hash below a given target", "The complexity of the programming language", "The length of the private key"], "a": 1 },
+    { "q": "A 'Lightweight Node' (SPV Node):", "o": ["Downloads the entire blockchain", "Only downloads block headers to verify transactions without needing massive storage", "Cannot send transactions", "Is used only by administrators"], "a": 1 },
+    { "q": "What are the four primary types of blockchains?", "o": ["Local, Global, Cloud, On-premise", "Public, Private, Consortium, Hybrid", "SQL, NoSQL, Graph, Relational", "Alpha, Beta, Gamma, Delta"], "a": 1 },
+    { "q": "A 'Public Blockchain' is also known as a:", "o": ["Permissioned Blockchain", "Permissionless Blockchain", "Centralized Blockchain", "Private Database"], "a": 1 },
+    { "q": "Which of the following is a key characteristic of a Public Blockchain?", "o": ["Only approved users can join", "Anyone can read, write, and participate in the consensus process", "It is controlled by a single company", "Transactions are fast and completely private"], "a": 1 },
+    { "q": "Bitcoin and Ethereum are classic examples of which type of blockchain?", "o": ["Private Blockchain", "Public Blockchain", "Consortium Blockchain", "Centralized Database"], "a": 1 },
+    { "q": "A 'Private Blockchain' is typically:", "o": ["Open to everyone in the world", "Controlled by a single organization that dictates who can read, write, and participate (Permissioned)", "Highly decentralized", "Immune to regulation"], "a": 1 },
+    { "q": "Which type of blockchain is most suitable for internal corporate data management where trust exists among participants?", "o": ["Public Blockchain", "Private Blockchain", "Bitcoin", "Dogecoin"], "a": 1 },
+    { "q": "A 'Consortium Blockchain' is governed by:", "o": ["A single individual", "A group of organizations or a consortium, rather than a single entity", "The entire global public", "Anonymous miners"], "a": 1 },
+    { "q": "Why would banks prefer a Consortium Blockchain over a Public Blockchain?", "o": ["Because Public blockchains are too fast", "To maintain control, privacy, and regulatory compliance while sharing data among a known group of banks", "Because Consortium blockchains use more electricity", "Because anyone can view consortium data"], "a": 1 },
+    { "q": "Hyperledger Fabric and R3 Corda are widely used frameworks for building:", "o": ["Public Cryptocurrencies", "Permissioned (Private/Consortium) Blockchains", "Video Games", "Web Browsers"], "a": 1 },
+    { "q": "A 'Hybrid Blockchain' combines features of:", "o": ["Centralized and Decentralized hardware", "Public and Private blockchains", "PoW and PoS only", "Windows and Linux"], "a": 1 },
+    { "q": "In a Hybrid Blockchain:", "o": ["All data is completely public", "All data is completely hidden", "Certain data is kept private while verification or proof is stored on a public blockchain", "There is no ledger at all"], "a": 2 },
+    { "q": "Which type of blockchain generally offers the highest transaction speed and scalability?", "o": ["Public Blockchain (e.g., Bitcoin)", "Private/Consortium Blockchain", "They are all exactly the same speed", "Decentralized Public Blockchains"], "a": 1 },
+    { "q": "Which type of blockchain offers the highest level of absolute decentralization and censorship resistance?", "o": ["Private Blockchain", "Consortium Blockchain", "Public Blockchain", "Central Bank Blockchain"], "a": 2 },
+    { "q": "If transparency to the public is the highest priority for a project, which blockchain should be used?", "o": ["Private", "Public", "Consortium", "Local Database"], "a": 1 },
+    { "q": "In a Permissioned Blockchain, user identities are usually:", "o": ["Completely anonymous", "Pseudonymous", "Known and verified", "Hidden from the administrator"], "a": 2 },
+    { "q": "Energy consumption (for consensus) is typically lowest in which type of blockchain?", "o": ["Public PoW Blockchains", "Private Blockchains", "Bitcoin network", "Unregulated blockchains"], "a": 1 },
+    { "q": "'Federated Blockchain' is another term often used for:", "o": ["Public Blockchain", "Consortium Blockchain", "Bitcoin", "Traditional Database"], "a": 1 },
+    { "q": "A government deploying a digital voting system where citizen data must be kept confidential but the results publicly verifiable might use a:", "o": ["Purely Public PoW Blockchain", "Hybrid Blockchain", "Traditional unencrypted database", "Single computer"], "a": 1 },
+    { "q": "The risk of a '51% attack' is most relevant to which type of network?", "o": ["Private Blockchains", "Public Blockchains (especially smaller ones)", "Traditional Relational Databases", "Closed Consortiums"], "a": 1 },
+    { "q": "Read access in a Private Blockchain is:", "o": ["Always restricted to the owner only", "Always open to the global public", "Restricted or granted based on the organization's rules", "Impossible to configure"], "a": 2 },
+    { "q": "Write access in a Public Blockchain is:", "o": ["Restricted to administrators", "Available to anyone who follows the network rules (e.g., paying gas fees)", "Restricted to government officials", "Granted via KYC"], "a": 1 },
+    { "q": "Which blockchain type requires 'Miners' to solve cryptographic puzzles to establish trust among unknown parties?", "o": ["Private Blockchain", "Consortium Blockchain", "Public PoW Blockchain", "Hyperledger Fabric"], "a": 2 },
+    { "q": "Who handles the consensus in a Consortium Blockchain?", "o": ["Anonymous miners worldwide", "A pre-selected set of validator nodes belonging to the consortium members", "A single dictator node", "The government"], "a": 1 },
+    { "q": "Which of the following is considered a Permissionless network?", "o": ["Ethereum Mainnet", "Bank of America internal network", "Hyperledger Fabric", "Quorum network"], "a": 0 },
+    { "q": "The term 'Enterprise Blockchain' usually refers to:", "o": ["Bitcoin", "Dogecoin", "Private and Consortium Blockchains tailored for business use", "Public blockchains"], "a": 2 },
+    { "q": "How does Blockchain benefit the Finance sector?", "o": ["By increasing transaction times to several days", "By eliminating intermediaries, enabling faster and cheaper cross-border payments", "By hiding all transactions from auditors", "By making banking entirely physical"], "a": 1 },
+    { "q": "In Supply Chain Management, blockchain is primarily used for:", "o": ["Designing the physical product", "Providing end-to-end traceability and verifying the provenance (origin) of goods", "Driving delivery trucks autonomously", "Printing paper receipts"], "a": 1 },
+    { "q": "What problem does blockchain solve in the Healthcare industry?", "o": ["Curing diseases digitally", "Securely sharing Electronic Health Records (EHR) while maintaining patient privacy and data integrity", "Replacing doctors with AI", "Generating infinite medical supplies"], "a": 1 },
+    { "q": "How is Blockchain used in the Gaming industry?", "o": ["To improve graphics rendering speed", "To provide true ownership of in-game digital assets (NFTs) and enable Play-to-Earn models", "To eliminate the need for an internet connection", "To make games free of cost"], "a": 1 },
+    { "q": "Provenance in supply chain refers to:", "o": ["The profit margin", "The chronological history of ownership, origin, and location of a product", "The delivery vehicle", "The tax paid"], "a": 1 },
+    { "q": "Blockchain can prevent counterfeit drugs in healthcare by:", "o": ["Creating digital medicine", "Tracking the drug's journey from manufacturer to patient on an immutable ledger", "Blocking viruses", "Replacing pharmacies"], "a": 1 },
+    { "q": "In finance, KYC stands for 'Know Your Customer'. How does blockchain help with KYC?", "o": ["By deleting customer identities", "By creating a shared, secure ledger where a verified identity can be used across multiple institutions without re-verification", "By making all customer data completely public to everyone", "By issuing credit cards automatically"], "a": 1 },
+    { "q": "NFTs (Non-Fungible Tokens) are heavily used in which blockchain application area?", "o": ["Healthcare diagnosis", "Supply Chain logistics", "Gaming and Digital Art", "Cross-border payments"], "a": 2 },
+    { "q": "What does 'Fungible' mean in the context of assets?", "o": ["Unique and irreplaceable", "Interchangeable with another identical item (like a dollar bill or Bitcoin)", "Made of fungi", "Cannot be traded"], "a": 1 },
+    { "q": "What does 'Non-Fungible' (as in NFT) mean?", "o": ["It can be divided into smaller equal parts", "It represents a unique, one-of-a-kind digital item that cannot be swapped 1:1 with another", "It is a physical coin", "It is illegal"], "a": 1 },
+    { "q": "How can blockchain improve voting systems?", "o": ["By allowing people to vote multiple times", "By providing a transparent, immutable record of votes, preventing tampering and fraud", "By randomly selecting a winner", "By hiding the total vote count permanently"], "a": 1 },
+    { "q": "Trade Finance involves complex paperwork (Letters of Credit). Blockchain improves this by:", "o": ["Digitizing documents and automating execution via smart contracts", "Printing more paper", "Hiring more bank clerks", "Banning international trade"], "a": 0 },
+    { "q": "In the real estate sector, 'Tokenization' refers to:", "o": ["Paying rent with arcade tokens", "Dividing physical property into digital shares (tokens) on a blockchain, allowing fractional ownership", "Securing doors with digital locks", "Building virtual houses"], "a": 1 },
+    { "q": "Which blockchain feature is most critical for clinical trials in healthcare?", "o": ["Cryptocurrency mining", "Immutability of trial data to prevent tampering or falsification of medical results", "Play-to-earn models", "High transaction speed"], "a": 1 },
+    { "q": "Play-to-Earn (P2E) games allow players to:", "o": ["Pay money to win the game", "Earn cryptocurrency or NFTs that have real-world value by participating in the game", "Play games for free without rewards", "Hack the game legally"], "a": 1 },
+    { "q": "Decentralized Finance (DeFi) applications operate without:", "o": ["Internet", "Traditional financial intermediaries like banks or brokerages", "Code", "Users"], "a": 1 },
+    { "q": "Smart contracts in Supply Chain can be used to:", "o": ["Automatically trigger payment to a supplier once GPS data confirms delivery", "Drive the delivery truck", "Manufacture the goods", "Create physical packaging"], "a": 0 },
+    { "q": "A primary challenge of using blockchain in healthcare is:", "o": ["The data is too secure", "Balancing the transparency of blockchain with strict patient privacy laws (like HIPAA)", "Doctors do not use computers", "Hospitals do not have electricity"], "a": 1 },
+    { "q": "Interoperability in gaming blockchain means:", "o": ["The game crashes often", "An asset (like a sword NFT) earned in one game might be usable in a completely different game", "The game can only be played on one specific console", "The game has poor graphics"], "a": 1 },
+    { "q": "Blockchain in IoT (Internet of Things) can be used to:", "o": ["Provide a secure, decentralized network for devices to authenticate and communicate directly", "Connect devices via a central server", "Provide electricity to sensors", "Monitor screen brightness"], "a": 0 },
+    { "q": "What is a Smart Contract?", "o": ["A legally binding physical document signed by a lawyer", "A self-executing computer program residing on a blockchain that automatically enforces the terms of an agreement", "A smart person hired to negotiate contracts", "An artificial intelligence that writes legal documents"], "a": 1 },
+    { "q": "Who first proposed the concept of Smart Contracts in the 1990s?", "o": ["Satoshi Nakamoto", "Nick Szabo", "Vitalik Buterin", "Hal Finney"], "a": 1 },
+    { "q": "Which blockchain platform popularized the use of Smart Contracts?", "o": ["Bitcoin", "Ethereum", "Litecoin", "Dogecoin"], "a": 1 },
+    { "q": "What is the most common programming language used to write smart contracts on Ethereum?", "o": ["Python", "Java", "Solidity", "C++"], "a": 2 },
+    { "q": "A key feature of smart contracts is 'Automation'. This means:", "o": ["They require manual approval from a judge to execute", "The code executes automatically when predefined conditions are met", "They automate the physical manufacturing process", "They reply to emails automatically"], "a": 1 },
+    { "q": "What makes a smart contract 'Trustless'?", "o": ["No one trusts it", "Parties do not need to trust each other; they trust the deterministic code running on the blockchain", "It cannot be verified", "It relies heavily on a central bank"], "a": 1 },
+    { "q": "Can a deployed smart contract code easily be changed or updated?", "o": ["Yes, anyone can edit it at any time", "No, they are typically immutable once deployed to the blockchain", "Yes, but only the creator can edit it", "Yes, but it requires a monthly fee"], "a": 1 },
+    { "q": "What is a Cryptocurrency?", "o": ["Physical coins made of encrypted metal", "A digital or virtual currency that uses cryptography for security and operates independently of a central bank", "A currency issued by a single tech company", "A credit card"], "a": 1 },
+    { "q": "Which of the following is the first and most widely recognized cryptocurrency?", "o": ["Ethereum", "Ripple", "Bitcoin", "Tether"], "a": 2 },
+    { "q": "Cryptocurrencies are generally not controlled by any central authority. This nature is called:", "o": ["Inflationary", "Decentralized", "Regulated", "Centralized"], "a": 1 },
+    { "q": "Altcoins are:", "o": ["Fake coins", "Any cryptocurrency other than Bitcoin", "Coins used exclusively for gaming", "Physical tokens"], "a": 1 },
+    { "q": "What is the primary purpose of a 'Stablecoin' (like USDT or USDC)?", "o": ["To provide maximum price volatility for traders", "To peg its value to a stable asset (like the US Dollar) to minimize price volatility", "To mine other coins", "To serve as an NFT"], "a": 1 },
+    { "q": "In the Ethereum network, what is the native cryptocurrency called?", "o": ["Solidity", "Gas", "Ether (ETH)", "SmartCoin"], "a": 2 },
+    { "q": "What is 'Gas' in the context of Ethereum?", "o": ["The fuel used to cool servers", "The fee required to execute transactions or run smart contracts on the network", "A type of cryptocurrency", "A protocol error"], "a": 1 },
+    { "q": "A digital 'Wallet' is used to:", "o": ["Store physical money", "Securely store the public and private keys needed to access and transact cryptocurrencies", "Mine bitcoin", "Write smart contracts"], "a": 1 },
+    { "q": "What is the difference between a 'Hot Wallet' and a 'Cold Wallet'?", "o": ["Hot wallets are illegal; Cold wallets are legal", "Hot wallets are connected to the internet; Cold wallets are offline storage devices", "Hot wallets store Bitcoin; Cold wallets store Ethereum", "There is no difference"], "a": 1 },
+    { "q": "DApps stand for:", "o": ["Digital Applications", "Decentralized Applications", "Direct Applications", "Downloadable Applications"], "a": 1 },
+    { "q": "How do DApps differ from traditional web apps?", "o": ["They don't use the internet", "Their backend code (smart contracts) runs on a decentralized blockchain network rather than a centralized server", "They are only for mobile phones", "They cannot have a user interface"], "a": 1 },
+    { "q": "ICO stands for:", "o": ["Internal Coin Offering", "Initial Coin Offering", "International Crypto Organization", "Internet Currency Operation"], "a": 1 },
+    { "q": "A situation where a smart contract receives data from the outside world (e.g., weather data, stock prices) relies on a:", "o": ["Miner", "Blockchain Oracle", "Web browser", "Node"], "a": 1 },
+    { "q": "What is the primary use case of the Ripple (XRP) network?", "o": ["Creating NFTs", "Facilitating fast, cheap cross-border payment settlements for financial institutions", "Storing healthcare data", "Playing games"], "a": 1 },
+    { "q": "CBDC stands for:", "o": ["Crypto Bank Digital Coin", "Central Bank Digital Currency", "Centralized Blockchain Data Center", "Core Banking Digital Cash"], "a": 1 },
+    { "q": "Unlike Bitcoin, a CBDC is:", "o": ["Completely decentralized", "Issued and regulated by a nation's central bank", "An anonymous cryptocurrency", "Mined by the public"], "a": 1 },
+    { "q": "What happens if there is a bug or flaw in the code of a Smart Contract?", "o": ["The system automatically fixes it", "It can be exploited by hackers, and because it is immutable, fixing it is extremely difficult or impossible without a hard fork or migration", "The creator can just delete the contract", "Nothing, bugs are ignored by the blockchain"], "a": 1 },
+    { "q": "A 'Token' differs from a 'Coin' because:", "o": ["A coin operates on its own independent blockchain, while a token is built on top of an existing blockchain (like Ethereum)", "A token is physical, a coin is digital", "Tokens are only for gaming", "Coins are illegal"], "a": 0 },
+    { "q": "One of the biggest challenges facing Public Blockchains like Bitcoin is 'Scalability'. What does this mean?", "o": ["The inability to process a high number of Transactions Per Second (TPS) compared to systems like Visa", "The inability to secure the network", "The inability to use passwords", "The inability to create new wallets"], "a": 0 },
+    { "q": "The 'Blockchain Trilemma' states that it is difficult to perfectly achieve all three of the following simultaneously:", "o": ["Speed, Cost, Graphics", "Decentralization, Security, and Scalability", "Immutability, Transparency, Privacy", "Mining, Staking, Spending"], "a": 1 },
+    { "q": "Proof of Work (PoW) consensus mechanisms face severe criticism primarily due to:", "o": ["Lack of security", "Massive energy consumption and environmental impact", "High speed", "Extreme centralization"], "a": 1 },
+    { "q": "What is a '51% Attack'?", "o": ["When 51% of users forget their password", "When a single entity or group gains control of more than 50% of the network's mining power, allowing them to rewrite the ledger and double-spend coins", "A tax imposed on cryptocurrencies", "When the network goes offline 51% of the time"], "a": 1 },
+    { "q": "Interoperability is a challenge in blockchain because:", "o": ["Blockchains are illegal in many countries", "Different blockchains (like Bitcoin and Ethereum) operate in silos and cannot easily communicate or transfer data/value between each other", "Users don't want to communicate", "Internet speeds are varying"], "a": 1 },
+    { "q": "Regulatory uncertainty is a challenge for blockchain adoption because:", "o": ["There is too much law", "Governments worldwide have differing, unclear, or changing laws regarding cryptocurrencies and tokenized assets", "Blockchains refuse to follow any laws", "Hackers write the laws"], "a": 1 },
+    { "q": "The transparency of Public Blockchains poses a challenge for:", "o": ["Data Privacy (since all transactions are visible to everyone)", "Security", "Immutability", "Miners"], "a": 0 },
+    { "q": "Why is the 'Immutability' of blockchain sometimes considered a challenge?", "o": ["Because it makes the network slow", "Because human errors (like sending funds to the wrong address) cannot be reversed or corrected", "Because it uses too much electricity", "Because hackers prefer immutability"], "a": 1 },
+    { "q": "The issue of 'Storage or Blockchain Bloat' refers to:", "o": ["The physical size of the computers", "The continuously growing size of the blockchain ledger, making it difficult for average users to run a full node", "Too many people buying crypto", "The high cost of transaction fees"], "a": 1 },
+    { "q": "A major barrier to enterprise adoption of blockchain is:", "o": ["Integration difficulties with existing legacy IT systems", "The low cost of implementation", "Excessive transaction speeds", "Lack of cryptography"], "a": 0 },
+    { "q": "Losing a 'Private Key' is a significant risk in blockchain because:", "o": ["You have to pay a small fine to the bank", "It results in permanent, unrecoverable loss of access to the associated assets", "Customer support will take 24 hours to reset your password", "It slows down the network"], "a": 1 },
+    { "q": "Which future technology is considered a potential threat to current blockchain cryptography?", "o": ["Artificial Intelligence", "Quantum Computing", "Virtual Reality", "6G Networks"], "a": 1 },
+    { "q": "The user experience (UX) of many blockchain applications is often criticized for being:", "o": ["Too simple and lacking features", "Overly complex, requiring users to manage private keys, wallets, and gas fees", "Too colorful", "Only available in one language"], "a": 1 },
+    { "q": "High price volatility in cryptocurrencies makes them difficult to use as:", "o": ["Speculative assets", "A reliable medium of exchange or unit of account for everyday purchases", "Trading instruments", "News topics"], "a": 1 },
+    { "q": "Network congestion on a blockchain (like Ethereum during peak times) typically leads to:", "o": ["Lower transaction fees", "Extremely high transaction (gas) fees and slow processing times", "The network shutting down", "Free transactions"], "a": 1 },
+    { "q": "What is the fundamental difference between a distributed ledger and a traditional database?", "o": ["A traditional database is faster, but a distributed ledger is controlled by a central authority", "A traditional database has a central point of control, while a distributed ledger spreads control and data across multiple nodes", "There is no difference", "Distributed ledgers only store images"], "a": 1 },
+    { "q": "Which of the following best describes the transition Ethereum made to solve the energy consumption problem?", "o": ["Switching from Proof of Stake to Proof of Work", "Switching from Proof of Work to Proof of Stake", "Banning all mining", "Using coal power"], "a": 1 },
+    { "q": "In a blockchain, if data is altered in Block #5, what happens to Block #6?", "o": ["Nothing", "The hash of Block #5 changes, which invalidates the 'Previous Hash' stored in Block #6, breaking the chain", "Block #6 automatically updates to fix Block #5", "The network ignores Block #5"], "a": 1 },
+    { "q": "What is a 'Hash Function' in cryptography?", "o": ["A function that generates a random number", "A mathematical algorithm that takes input data of any size and produces a fixed-size string of characters", "A function to encrypt data so it can be decrypted later", "A function to hide IP addresses"], "a": 1 },
+    { "q": "Which sector benefits from smart contracts automating payouts based on verifiable events (like flight delays)?", "o": ["Agriculture", "Insurance", "Gaming", "Education"], "a": 1 }
+  ],
+   4: [
+    { "q": "What is the primary goal of Immersive Technology?", "o": ["To increase the size of computer hardware", "To blur the line between the physical and digital world, creating a sense of presence", "To reduce internet speed", "To convert digital files into paper format"], "a": 1 },
+    { "q": "Which technology completely replaces the user's real-world environment with a simulated digital environment?", "o": ["Augmented Reality (AR)", "Virtual Reality (VR)", "Mixed Reality (MR)", "Haptic Technology"], "a": 1 },
+    { "q": "Which technology overlays digital information (images, text, sounds) onto the user's view of the real world?", "o": ["Virtual Reality (VR)", "Quantum Computing", "Augmented Reality (AR)", "Green Computing"], "a": 2 },
+    { "q": "Pokémon GO and Snapchat filters are popular examples of which technology?", "o": ["Virtual Reality", "Augmented Reality", "Haptic Technology", "Quantum Computing"], "a": 1 },
+    { "q": "What distinguishes Mixed Reality (MR) from Augmented Reality (AR)?", "o": ["MR requires no screen", "In MR, digital and physical objects can co-exist and actively interact with one another in real-time", "MR is only used for audio", "AR is fully immersive, while MR is not"], "a": 1 },
+    { "q": "Microsoft HoloLens is a prominent example of a headset designed for:", "o": ["Virtual Reality (VR)", "Mixed Reality (MR)", "Green Computing", "Pure Audio Streaming"], "a": 1 },
+    { "q": "What does the acronym XR stand for?", "o": ["Extra Reality", "Extended Reality", "External Reality", "Extreme Reality"], "a": 1 },
+    { "q": "Extended Reality (XR) is best described as:", "o": ["A completely new technology unrelated to AR or VR", "An umbrella term that encompasses VR, AR, MR, and all future realities on that spectrum", "A reality that only exists in quantum computers", "A type of computer monitor"], "a": 1 },
+    { "q": "Which technology simulates the sense of touch by applying forces, vibrations, or motions to the user?", "o": ["Haptic Technology", "Optic Technology", "Acoustic Technology", "Quantum Technology"], "a": 0 },
+    { "q": "The vibration you feel when typing on your smartphone's virtual keyboard is a basic example of:", "o": ["Virtual Reality", "Augmented Reality", "Haptic feedback", "Mixed Reality"], "a": 2 },
+    { "q": "In VR terminology, what does 'HMD' stand for?", "o": ["High Memory Device", "Head-Mounted Display", "Hardware Management Data", "Holographic Mixed Display"], "a": 1 },
+    { "q": "What does 'FOV' stand for in the context of Immersive Technology headsets?", "o": ["Frequency of Vision", "Field of View", "Focus of Virtual", "Frame of Video"], "a": 1 },
+    { "q": "A wider Field of View (FOV) in a VR headset generally results in:", "o": ["Lower battery life only", "A more immersive experience for the user", "A completely flat 2D image", "Reduced color depth"], "a": 1 },
+    { "q": "In VR, what does '3DoF' mean?", "o": ["3 Days of Frequency", "3 Degrees of Freedom (tracking rotational head movements: pitch, yaw, roll)", "3 Dimensions of Focus", "3 Displays of Frame"], "a": 1 },
+    { "q": "How does '6DoF' differ from '3DoF' in VR tracking?", "o": ["6DoF tracks only eye movement", "6DoF adds translational tracking (moving forward/backward, up/down, left/right) to rotational tracking", "6DoF requires 6 separate monitors", "6DoF uses 6 times more power"], "a": 1 },
+    { "q": "Which of the following is a common challenge or side effect experienced by users in Virtual Reality?", "o": ["Improved eyesight", "Cybersickness or Motion Sickness", "Increased internet speed", "Lower body temperature"], "a": 1 },
+    { "q": "In Augmented Reality, 'Marker-based AR' requires:", "o": ["A completely dark room", "A visual cue (like a QR code or specific image) to trigger the 3D digital overlay", "A VR headset", "Haptic gloves"], "a": 1 },
+    { "q": "Markerless AR uses device sensors (GPS, compass, accelerometer) to:", "o": ["Determine the user's location and overlay data without needing a specific visual trigger", "Turn off the screen", "Make phone calls", "Print documents"], "a": 0 },
+    { "q": "Spatial Computing is a concept most closely associated with which immersive technology?", "o": ["Virtual Reality", "Mixed Reality (MR)", "2D Desktop Computing", "Cloud Computing"], "a": 1 },
+    { "q": "In Mixed Reality, 'Occlusion' refers to:", "o": ["The headset running out of battery", "The ability of virtual objects to be hidden behind physical real-world objects, enhancing realism", "The audio volume level", "The internet connection dropping"], "a": 1 },
+    { "q": "Which component is crucial for a smartphone to provide accurate AR experiences?", "o": ["Floppy disk drive", "Camera and Gyroscope/Accelerometer", "High-capacity hard drive", "Ethernet port"], "a": 1 },
+    { "q": "Force feedback steering wheels used in racing simulators are an advanced application of:", "o": ["AR", "VR", "Haptic Technology", "Green Computing"], "a": 2 },
+    { "q": "What type of actuator is commonly used to generate haptic vibrations in smartphones?", "o": ["Nuclear reactor", "Eccentric Rotating Mass (ERM) or Linear Resonant Actuator (LRA)", "Turbine", "Diesel engine"], "a": 1 },
+    { "q": "A fully immersive VR system typically requires which of the following?", "o": ["A standard desktop monitor", "An HMD, powerful computing hardware, and tracking sensors", "A smartphone only", "A pair of regular sunglasses"], "a": 1 },
+    { "q": "Which technology allows a surgeon to see a patient's CT scan digitally overlaid directly onto the patient's body during an operation?", "o": ["Virtual Reality", "Augmented Reality / Mixed Reality", "Haptic Technology", "Quantum Computing"], "a": 1 },
+    { "q": "What does 'Presence' mean in the context of Virtual Reality?", "o": ["The user's physical location", "The psychological sensation of truly 'being there' in the virtual environment", "The amount of RAM in the headset", "The number of people in the physical room"], "a": 1 },
+    { "q": "The term 'Avatar' in immersive tech refers to:", "o": ["A type of computer virus", "A graphical representation of the user in the virtual environment", "The hardware casing of the headset", "The power cable"], "a": 1 },
+    { "q": "Latency in a VR headset is:", "o": ["The time delay between a user's head movement and the corresponding update on the screen", "The brightness of the screen", "The battery capacity", "The size of the lenses"], "a": 0 },
+    { "q": "High latency in a VR system often leads to:", "o": ["Better graphics", "Cybersickness and nausea", "Lower power consumption", "Faster internet speeds"], "a": 1 },
+    { "q": "Telepresence leverages immersive technology to allow a user to:", "o": ["Delete remote files", "Feel as if they are present in a location other than their true physical location", "Read text faster", "Calculate mathematical equations"], "a": 1 },
+    { "q": "Which of the following is an example of an 'Optical See-Through' device?", "o": ["Oculus Quest (in pure VR mode)", "Microsoft HoloLens or Google Glass", "A standard television", "A smartwatch"], "a": 1 },
+    { "q": "Which of the following is an example of a 'Video See-Through' AR device?", "o": ["Transparent glass lenses", "A smartphone camera displaying the real world on its screen with AR objects added", "A completely blindfold headset", "A mechanical keyboard"], "a": 1 },
+    { "q": "A 'CAVE' (Cave Automatic Virtual Environment) system is:", "o": ["A dark room with no technology", "A room where images are projected onto the walls, floor, and ceiling to create a VR experience without a headset", "A type of quantum computer", "A data center cooling method"], "a": 1 },
+    { "q": "The 'Refresh Rate' of a VR headset refers to:", "o": ["How often the headset needs to be cleaned", "The number of times per second the display updates with new images (e.g., 90Hz or 120Hz)", "The speed of the internet connection", "How fast the battery drains"], "a": 1 },
+    { "q": "A higher refresh rate in a VR headset helps to:", "o": ["Make the device heavier", "Reduce motion blur and motion sickness", "Increase the physical size of the screen", "Reduce the audio volume"], "a": 1 },
+    { "q": "What is 'SLAM' technology used for in AR and MR?", "o": ["Sending emails", "Simultaneous Localization and Mapping – understanding the physical environment and the device's position within it", "Synthesizing language and music", "Securing local area memory"], "a": 1 },
+    { "q": "Which haptic technology allows users to physically feel the shape and resistance of virtual objects?", "o": ["Vibrotactile feedback", "Kinesthetic (Force) feedback", "Thermal feedback", "Visual feedback"], "a": 1 },
+    { "q": "Ultrasonic Haptics creates the sensation of touch in mid-air using:", "o": ["Laser beams", "Focused high-frequency sound waves (ultrasound)", "Physical strings attached to fingers", "Water jets"], "a": 1 },
+    { "q": "What is a 'Treadmill' used for in advanced VR setups?", "o": ["Charging the battery", "Allowing the user to walk or run in any direction in the virtual world while staying in the same physical spot (Omnidirectional treadmill)", "Cooling the computer", "Typing text"], "a": 1 },
+    { "q": "The concept of the 'Metaverse' relies heavily on the integration of:", "o": ["Floppy disks and CD-ROMs", "AR, VR, MR, and the internet to create a persistent, shared 3D virtual space", "Only text-based chat rooms", "Analog telephones"], "a": 1 },
+    { "q": "Which of the following limits the widespread adoption of advanced VR/MR headsets?", "o": ["They are too cheap", "High cost, bulky hardware, and technical limitations (battery life, FOV)", "They do not require electricity", "There are no applications for them"], "a": 1 },
+    { "q": "Head-tracking in modern VR headsets is usually achieved using:", "o": ["Only a compass", "IMUs (Inertial Measurement Units) combined with optical cameras or infrared sensors", "A physical cable attached to the wall", "A microphone"], "a": 1 },
+    { "q": "Foveated Rendering is a technique used in VR to:", "o": ["Render the entire scene at maximum quality at all times", "Render only the area where the user is currently looking at high resolution, saving computational power", "Turn off the display", "Make the colors black and white"], "a": 1 },
+    { "q": "To use Foveated Rendering effectively, a VR headset must have:", "o": ["A microphone", "Eye-tracking technology", "A keyboard", "Haptic gloves"], "a": 1 },
+    { "q": "The term 'Immersion' in VR is an objective measure of:", "o": ["The user's feelings", "The technological capability of the system to deliver a realistic, high-fidelity sensory experience", "The depth of water a device can survive in", "The price of the headset"], "a": 1 },
+    { "q": "How is VR currently being used in the Healthcare industry?", "o": ["To physically perform surgeries without doctors", "To train surgeons in a risk-free virtual environment before they operate on real patients", "To replace all physical medicines", "To clean hospital floors"], "a": 1 },
+    { "q": "Immersive technology (VR) is highly effective in treating psychological conditions like:", "o": ["High blood pressure", "PTSD (Post-Traumatic Stress Disorder) and specific phobias via Exposure Therapy", "Broken bones", "Viral infections"], "a": 1 },
+    { "q": "In the Retail and E-commerce sector, AR is used for:", "o": ["Printing paper catalogs", "Try-before-you-buy experiences, like visualizing furniture in your living room using a smartphone camera", "Making online payments slower", "Closing physical stores entirely"], "a": 1 },
+    { "q": "Which of the following is a major application of AR in the Automotive industry?", "o": ["Replacing the steering wheel with a keyboard", "Head-Up Displays (HUDs) that project navigation and speed data onto the windshield", "Making cars fly", "Removing the need for fuel"], "a": 1 },
+    { "q": "How does VR benefit the Real Estate and Architecture industries?", "o": ["By building physical houses faster", "By allowing clients to take virtual walkthroughs of properties or unbuilt architectural designs from anywhere in the world", "By generating legal contracts", "By replacing brick and mortar with digital code"], "a": 1 },
+    { "q": "In the Military and Defense sector, VR is heavily used for:", "o": ["Creating entertainment videos", "Flight simulators, battlefield combat training, and parachute jump simulations", "Tracking weather patterns", "Designing uniforms"], "a": 1 },
+    { "q": "How is Augmented Reality utilized in Manufacturing and Maintenance?", "o": ["To replace human workers completely", "To overlay step-by-step repair instructions or schematics directly onto a physical machine for technicians", "To reduce the lighting in the factory", "To play music on the factory floor"], "a": 1 },
+    { "q": "In Education, Immersive Technology allows students to:", "o": ["Read plain text faster", "Take virtual field trips to historical sites or explore complex 3D models of molecules and anatomy", "Avoid taking exams", "Print their homework in 3D"], "a": 1 },
+    { "q": "Which sector has traditionally been the biggest driver and earliest adopter of VR technology?", "o": ["Agriculture", "Gaming and Entertainment", "Accounting", "Textile manufacturing"], "a": 1 },
+    { "q": "In the context of collaborative work, MR and VR can be used to:", "o": ["Prevent employees from communicating", "Host immersive virtual meetings where avatars interact with 3D models in a shared digital workspace", "Send text messages", "Block internet access"], "a": 1 },
+    { "q": "How is Haptic Technology applied in modern video game controllers?", "o": ["By displaying 4K graphics", "By using advanced rumble motors and adaptive triggers to simulate the tension of a bow or the feeling of different terrains", "By connecting to the cloud", "By measuring heart rate"], "a": 1 },
+    { "q": "AR smart glasses can assist warehouse workers (Logistics) by:", "o": ["Playing movies during work", "Highlighting the exact location of a package on a shelf and displaying hands-free picking instructions", "Making the packages lighter", "Driving the forklift automatically"], "a": 1 },
+    { "q": "Virtual Tourism uses VR to:", "o": ["Book physical airline tickets", "Provide users with immersive 360-degree experiences of global destinations without leaving their homes", "Build new hotels", "Create passports"], "a": 1 },
+    { "q": "In the fashion industry, AR 'Virtual Mirrors' allow customers to:", "o": ["See themselves wearing digital clothing or makeup in real-time", "Chat with customer service", "Buy physical mirrors", "Alter the physical fabric of clothes"], "a": 0 },
+    { "q": "Which immersive technology is best suited for providing remote assistance, where an expert sees what a field worker sees and draws digital annotations on their view?", "o": ["Pure Virtual Reality (VR)", "Augmented Reality (AR) or Mixed Reality (MR)", "Haptic feedback only", "Desktop computing"], "a": 1 },
+    { "q": "Haptic feedback in robotic tele-surgery (like the da Vinci system) is crucial because:", "o": ["It plays music for the surgeon", "It allows the surgeon to physically 'feel' the tissue and the resistance of the instruments, improving precision", "It makes the robot move faster", "It keeps the robot's battery charged"], "a": 1 },
+    { "q": "Immersive Journalism aims to:", "o": ["Write longer articles", "Put the viewer inside a news story (e.g., inside a war zone or refugee camp) using 360-degree video and VR to build empathy", "Print newspapers in 3D", "Replace journalists with AI"], "a": 1 },
+    { "q": "In automotive design, engineers use VR to:", "o": ["Test the physical engine oil", "Create and review full-scale 3D virtual prototypes of car interiors before building physical models", "Sell the car online", "Paint the physical car"], "a": 1 },
+    { "q": "A museum using AR might provide an app that:", "o": ["Replaces all physical paintings with digital ones", "Brings dinosaur skeletons to life or overlays historical facts when a visitor points their phone at an exhibit", "Locks the doors at night", "Sells tickets"], "a": 1 },
+    { "q": "How can VR be used in sports training?", "o": ["To replace physical exercise entirely", "To allow athletes to repetitively practice facing specific game scenarios (like a quarterback reading a defense) without physical fatigue", "To design sports apparel", "To count the crowd"], "a": 1 },
+    { "q": "What is the primary definition of Green Computing?", "o": ["Using computers that are painted green", "The environmentally responsible and eco-friendly use of computers and their resources", "Using computers only outdoors", "Increasing power consumption for better performance"], "a": 1 },
+    { "q": "The goal of Green Computing is to:", "o": ["Maximize energy consumption", "Reduce the use of hazardous materials, maximize energy efficiency, and promote recyclability", "Use more paper in offices", "Build larger data centers"], "a": 1 },
+    { "q": "Which of the following programs, launched by the EPA in 1992, was a major milestone in promoting Green Computing?", "o": ["Project Apollo", "Energy Star", "Windows 95", "The Manhattan Project"], "a": 1 },
+    { "q": "Energy Star labels on electronics indicate that the device:", "o": ["Uses maximum electricity", "Meets strict energy efficiency guidelines set by the EPA", "Emits harmful radiation", "Is powered exclusively by solar energy"], "a": 1 },
+    { "q": "Which hardware component generally consumes less power and is considered more 'green'?", "o": ["HDD (Hard Disk Drive)", "SSD (Solid State Drive)", "CRT Monitor", "Incandescent bulb"], "a": 1 },
+    { "q": "Replacing old CRT (Cathode Ray Tube) monitors with LCD or LED monitors is an example of:", "o": ["Wasting money", "Green Computing (Energy efficient hardware)", "Network hacking", "Immersive Technology"], "a": 1 },
+    { "q": "What is 'E-waste'?", "o": ["Electronic waste; discarded electrical or electronic devices", "Emails that are sent to the trash folder", "Waste produced by biological processes", "Energy wasted by the sun"], "a": 0 },
+    { "q": "Why is E-waste considered highly dangerous to the environment?", "o": ["It takes up too much space", "It contains toxic and hazardous materials like lead, mercury, cadmium, and beryllium", "It is highly flammable", "It emits loud noises"], "a": 1 },
+    { "q": "Proper E-waste management involves the '3 R's', which are:", "o": ["Read, Write, Run", "Reduce, Reuse, Recycle", "Record, Remove, Return", "Replace, Repair, Reject"], "a": 1 },
+    { "q": "What does the 'Reduce' principle mean in Green Computing?", "o": ["Reducing the size of the computer case", "Decreasing the energy consumption and the amount of hardware generated/discarded", "Reducing the speed of the processor", "Reducing the font size on the screen"], "a": 1 },
+    { "q": "Refurbishing an old laptop and donating it to a school is an example of:", "o": ["Reducing", "Reusing", "Recycling", "Rejecting"], "a": 1 },
+    { "q": "Extracting precious metals (like gold, copper, and silver) from old circuit boards is an example of:", "o": ["Reducing", "Reusing", "Recycling", "Replacing"], "a": 2 },
+    { "q": "In Data Centers, what is 'Server Virtualization'?", "o": ["Creating virtual reality games for servers", "Running multiple virtual machines (VMs) on a single physical server to maximize hardware utilization and reduce energy consumption", "Turning servers off permanently", "Making servers physically invisible"], "a": 1 },
+    { "q": "How does Server Virtualization contribute to Green Computing?", "o": ["It increases the number of physical servers needed", "It reduces 'server sprawl', lowering power and cooling requirements by using fewer physical machines", "It uses more electricity per transaction", "It prevents users from accessing data"], "a": 1 },
+    { "q": "PUE stands for Power Usage Effectiveness. It is a metric used to determine:", "o": ["The internet speed of a network", "The energy efficiency of a data center", "The battery life of a smartphone", "The processing power of a CPU"], "a": 1 },
+    { "q": "An ideal PUE ratio for a highly efficient data center is closest to:", "o": ["10.0", "5.0", "1.0 (Meaning all power goes to computing, none wasted on cooling/overhead)", "0.0"], "a": 2 },
+    { "q": "Which of the following is a green strategy for cooling Data Centers?", "o": ["Using coal power", "Free cooling (using naturally cold outside air or water) and Hot/Cold aisle containment", "Placing servers in direct sunlight", "Leaving the doors open in summer"], "a": 1 },
+    { "q": "Hot Aisle / Cold Aisle containment is a technique used in data centers to:", "o": ["Separate employees based on temperature preference", "Prevent hot exhaust air from mixing with cold intake air, improving cooling efficiency", "Store data based on how frequently it is accessed", "Prevent fires"], "a": 1 },
+    { "q": "What is the function of 'Power Management' software (like ACPI) in an operating system?", "o": ["To increase the CPU clock speed to maximum", "To automatically put the computer, monitor, and hard drives into a low-power 'sleep' or 'standby' mode after a period of inactivity", "To prevent the computer from ever turning off", "To format the hard drive"], "a": 1 },
+    { "q": "Which European directive restricts the use of hazardous substances (like lead and mercury) in electrical and electronic equipment?", "o": ["GDPR", "RoHS (Restriction of Hazardous Substances)", "WEEE", "HIPAA"], "a": 1 },
+    { "q": "What does the WEEE directive deal with?", "o": ["Wireless internet protocols", "The collection, recycling, and recovery targets for Waste Electrical and Electronic Equipment", "Web accessibility guidelines", "Water conservation"], "a": 1 },
+    { "q": "Telecommuting or Remote Work is considered a Green Computing practice because:", "o": ["It uses more paper", "It reduces the carbon footprint associated with daily employee commuting (driving cars) and office power usage", "It requires everyone to buy new computers", "It slows down company productivity"], "a": 1 },
+    { "q": "Cloud Computing generally supports Green Computing by:", "o": ["Printing data locally", "Centralizing resources into highly efficient, shared mega-data centers rather than individual, inefficient local servers", "Using older hardware", "Providing free internet"], "a": 1 },
+    { "q": "Which is an eco-friendly practice when printing documents?", "o": ["Printing on one side of the paper only", "Using duplex (double-sided) printing and recycled paper", "Printing every email received", "Using color ink for draft documents"], "a": 1 },
+    { "q": "Dynamic Voltage and Frequency Scaling (DVFS) in modern CPUs helps to:", "o": ["Overclock the CPU constantly", "Save energy by lowering the voltage and speed of the processor when full power is not needed", "Increase the heat output", "Bypass the power supply"], "a": 1 },
+    { "q": "The concept of a 'Circular Economy' in electronics encourages:", "o": ["A 'Take-Make-Dispose' linear model", "Designing products for longevity, repairability, and high recyclability to keep resources in use for as long as possible", "Using circular shaped computers", "Throwing electronics in the ocean"], "a": 1 },
+    { "q": "What is 'Vampire Power' or 'Standby Power'?", "o": ["Power generated by solar panels at night", "The electric power consumed by electronic devices while they are switched off or in standby mode but still plugged in", "Power used by hackers", "Power drawn by the cooling fans only"], "a": 1 },
+    { "q": "How can a user easily eliminate Vampire Power for multiple devices?", "o": ["Leave the devices turned on", "Plug them into a smart power strip and turn off the strip when not in use", "Upgrade the RAM", "Change the desktop wallpaper"], "a": 1 },
+    { "q": "Why is proper E-waste disposal critical for human health?", "o": ["Old computers can explode spontaneously", "Informal recycling (burning wires for copper) in developing countries releases toxic fumes that cause severe respiratory and neurological issues", "E-waste transmits digital computer viruses to humans", "Old screens emit UV light"], "a": 1 },
+    { "q": "Green IT encompasses the sustainability of IT across its entire lifecycle, which includes:", "o": ["Only the usage phase", "Only the disposal phase", "Design, Manufacturing, Usage, and Disposal", "Only the software development phase"], "a": 2 },
+    { "q": "Using thin clients instead of thick (fat) clients in an office environment:", "o": ["Increases power consumption per desk", "Decreases power consumption, as thin clients rely on a central server for processing and use very little local power", "Requires more hard drives", "Stops internet connectivity"], "a": 1 },
+    { "q": "Which of the following is NOT a practice of Green Computing?", "o": ["Using Sleep mode", "Purchasing Energy Star appliances", "Leaving the PC running 24/7 to avoid boot-up time", "Recycling old printer cartridges"], "a": 2 },
+    { "q": "Algorithmic efficiency is a part of Green Computing because:", "o": ["Bad code looks ugly", "Highly optimized software executes faster, requiring less CPU time and therefore less electrical energy", "Algorithms dictate hardware shape", "Software cannot be recycled"], "a": 1 },
+    { "q": "Planned Obsolescence is a practice where manufacturers:", "o": ["Design products to last forever", "Design products with an artificially limited useful life, forcing consumers to buy newer models, which worsens the E-waste problem", "Use only green materials", "Offer free lifetime repairs"], "a": 1 },
+    { "q": "Which of the following materials found in older CRT monitors is highly toxic and causes E-waste concerns?", "o": ["Silicon", "Copper", "Lead", "Plastic"], "a": 2 },
+    { "q": "Upcycling differs from Recycling in that Upcycling:", "o": ["Breaks materials down to their raw form", "Repurposes discarded items into products of higher quality or value without breaking them down completely", "Burns the waste", "Buries the waste in a landfill"], "a": 1 },
+    { "q": "Data centers consuming large amounts of water is primarily an issue related to:", "o": ["Generating electricity", "Cooling the server racks (evaporative cooling towers)", "Washing the floors", "Hydrating the staff"], "a": 1 },
+    { "q": "A classical computer uses 'Bits' (0 or 1). What is the fundamental unit of information in a Quantum Computer?", "o": ["Qubits (Quantum Bits)", "Gigabytes", "Megabits", "Q-bytes"], "a": 0 },
+    { "q": "A classical bit must be exactly 0 or 1. A Qubit can exist as 0, 1, or both simultaneously. This quantum property is called:", "o": ["Entanglement", "Superposition", "Teleportation", "Interference"], "a": 1 },
+    { "q": "Superposition gives Quantum Computers their power because it allows them to:", "o": ["Run on zero electricity", "Process a massive number of possibilities or calculations simultaneously", "Connect to the internet without Wi-Fi", "Never crash"], "a": 1 },
+    { "q": "The quantum phenomenon where two qubits become linked, such that the state of one instantly dictates the state of the other (no matter the distance), is called:", "o": ["Superposition", "Quantum Entanglement", "Quantum Decoherence", "Quantum Tunneling"], "a": 1 },
+    { "q": "Albert Einstein famously referred to Quantum Entanglement as:", "o": ["The Theory of Everything", "Spooky action at a distance", "The God Particle", "Relative nonsense"], "a": 1 },
+    { "q": "Quantum Computers use 'Quantum Interference' to:", "o": ["Jam radio signals", "Amplify the correct answers/paths in an algorithm and cancel out the incorrect ones", "Block internet ads", "Overheat the processor"], "a": 1 },
+    { "q": "What is a major physical requirement for operating most modern superconducting Quantum Computers?", "o": ["They must be kept at room temperature", "They must be cooled to near Absolute Zero (approx. -273°C or 0 Kelvin) to maintain quantum states", "They require direct sunlight", "They must be submerged in boiling water"], "a": 1 },
+    { "q": "Why must quantum processors be kept incredibly cold and isolated?", "o": ["Because qubits are extremely fragile; any heat, noise, or electromagnetic interference causes them to lose their quantum state (Decoherence)", "To keep the scientists cool", "To slow down the computations", "To prevent them from melting the floor"], "a": 0 },
+    { "q": "What is 'Quantum Decoherence'?", "o": ["The process of writing quantum code", "The loss of a qubit's quantum state (superposition/entanglement) due to interaction with the external environment, leading to calculation errors", "The freezing of the computer", "A type of quantum virus"], "a": 1 },
+    { "q": "Shor's Algorithm is a famous quantum algorithm that poses a massive future threat to:", "o": ["Video game graphics", "Current public-key cryptography (like RSA), because it can factor large prime numbers exponentially faster than classical computers", "Monitor resolutions", "Battery technology"], "a": 1 },
+    { "q": "If a Quantum Computer successfully breaks standard encryption, what is the proposed solution for the future?", "o": ["Going back to paper records", "Post-Quantum Cryptography (Quantum-resistant algorithms)", "Using shorter passwords", "Stopping internet usage"], "a": 1 },
+    { "q": "Quantum Supremacy (or Quantum Advantage) refers to the point at which:", "o": ["A quantum computer takes over the world", "A quantum computer can solve a specific problem that no classical computer can practically solve within a reasonable timeframe", "Classical computers are entirely destroyed", "Quantum computers become cheaper than laptops"], "a": 1 },
+    { "q": "Which tech company famously claimed to have achieved Quantum Supremacy in 2019 using their 'Sycamore' processor?", "o": ["Apple", "Google", "Facebook", "Amazon"], "a": 1 }
+  ],
+    5 : [
+    { "q": "What is the primary definition of Digital Forensics?", "o": ["The process of fixing broken computer hardware", "The application of investigation and analysis techniques to gather and preserve evidence from a particular computing device", "The act of legally hacking into a network", "The development of new cryptographic algorithms"], "a": 1 },
+    { "q": "The main objective of Digital Forensics is to:", "o": ["Ensure the internet is running fast", "Extract data in a forensically sound manner to present it in a court of law", "Install antivirus software", "Backup data to the cloud"], "a": 1 },
+    { "q": "Locard’s Exchange Principle, a foundational concept in forensics, states that:", "o": ["Data can only be copied, not moved", "Every contact leaves a trace", "Passwords must be exchanged securely", "All data must be encrypted"], "a": 1 },
+    { "q": "Volatile data refers to data that:", "o": ["Is permanently stored on a hard drive", "Is lost when the device loses power (e.g., RAM)", "Is encrypted with a high-level key", "Cannot be deleted"], "a": 1 },
+    { "q": "Which of the following is an example of non-volatile data?", "o": ["System cache in RAM", "Active network connections", "Data stored on a Hard Disk Drive (HDD)", "Running processes"], "a": 2 },
+    { "q": "In digital forensics, 'Live Forensics' refers to:", "o": ["Investigating a system while it is still powered on and running", "Broadcasting the investigation on the internet", "Pulling the plug before starting the investigation", "Interrogating a live suspect"], "a": 0 },
+    { "q": "Dead Forensics (or Post-mortem forensics) involves:", "o": ["Investigating deceased individuals", "Analyzing data from a system that has been powered off and a forensic image has been taken", "Using outdated software", "Failing an investigation"], "a": 1 },
+    { "q": "Digital evidence is best described as:", "o": ["Any physical document related to a crime", "Any information of probative value that is either stored or transmitted in digital form", "Only the emails of a suspect", "The hardware casing of a computer"], "a": 1 },
+    { "q": "Why is Digital Evidence often considered fragile?", "o": ["Because computer hardware breaks easily", "Because it can be easily altered, deleted, or destroyed, either intentionally or accidentally", "Because it cannot be printed", "Because it expires after 24 hours"], "a": 1 },
+    { "q": "The term 'Exculpatory Evidence' refers to evidence that:", "o": ["Proves a suspect's guilt", "Clears a suspect of guilt or blame", "Is hidden by encryption", "Cannot be read by computers"], "a": 1 },
+    { "q": "Inculpatory Evidence refers to evidence that:", "o": ["Supports the prosecution's case and proves guilt", "Clears the suspect", "Is destroyed", "Is found in RAM"], "a": 0 },
+    { "q": "Anti-forensics refers to:", "o": ["The software used by investigators", "Techniques and tools used by attackers to hide evidence or thwart forensic investigations", "Law enforcement policies", "Creating backups"], "a": 1 },
+    { "q": "Steganography, often used in anti-forensics, is the practice of:", "o": ["Encrypting a hard drive", "Hiding a secret message or data within an ordinary, non-secret file or image", "Deleting system logs", "Smashing a hard drive"], "a": 1 },
+    { "q": "Which of the following is a common anti-forensic technique?", "o": ["Making a bit-by-bit copy", "Hashing the disk", "Wiping or securely deleting files", "Documenting the chain of custody"], "a": 2 },
+    { "q": "In digital forensics, what does 'Timestomping' mean?", "o": ["Stepping on a hard drive", "Altering the creation, modification, or access timestamps of a file to confuse investigators", "Taking too long to investigate", "Syncing a computer with an NTP server"], "a": 1 },
+    { "q": "The ACPO guidelines provide principles for:", "o": ["Buying computer hardware", "The legal handling and acquisition of digital evidence", "Writing software code", "Hacking passwords"], "a": 1 },
+    { "q": "According to ACPO Principle 1, no action taken by law enforcement should:", "o": ["Cost more than the device", "Change data held on a computer or storage media which may be subsequently relied upon in court", "Alert the suspect", "Take longer than 24 hours"], "a": 1 },
+    { "q": "If it is necessary to access original data held on a computer (ACPO Principle 2), the person doing so must be:", "o": ["A high-ranking officer", "Competent and able to explain the relevance and implications of their actions", "The owner of the device", "An automated robot"], "a": 1 },
+    { "q": "What is an 'Audit Trail' in the context of digital forensics?", "o": ["A trail of physical footprints", "A detailed, chronological record of all actions taken during the investigation, allowing a third party to repeat the same steps", "A financial document", "A list of software bugs"], "a": 1 },
+    { "q": "What is the 'Chain of Custody'?", "o": ["A physical lock used to secure computers", "A chronological paper trail documenting the seizure, custody, control, transfer, analysis, and disposition of physical or electronic evidence", "The connection between different routers", "The sequence of viruses in a system"], "a": 1 },
+    { "q": "Why is maintaining the Chain of Custody critical?", "o": ["To keep the evidence clean", "To ensure the evidence has not been tampered with and is admissible in court", "To save storage space", "To speed up the analysis"], "a": 1 },
+    { "q": "The first step in the general Digital Forensic Investigation Process is:", "o": ["Analysis", "Identification", "Presentation", "Collection"], "a": 1 },
+    { "q": "In the 'Collection/Acquisition' phase, investigators typically:", "o": ["Turn on the computer and browse files normally", "Create an exact bit-by-bit forensic image (clone) of the original media", "Delete unrelated files", "Interrogate the suspect"], "a": 1 },
+    { "q": "A 'Write-Blocker' is a hardware or software tool used during acquisition to:", "o": ["Write reports automatically", "Prevent any data from being written or modified on the suspect's original storage drive", "Block internet access", "Encrypt the data"], "a": 1 },
+    { "q": "Which mathematical function is used to verify that a forensic image is an exact duplicate of the original drive?", "o": ["Cryptographic Hashing (e.g., MD5, SHA-1, SHA-256)", "Zipping/Compression", "Formatting", "Defragmentation"], "a": 0 },
+    { "q": "If the hash value of the original drive matches the hash value of the forensic image, it proves:", "o": ["Data Integrity (no data was changed during copying)", "The suspect is guilty", "The drive is virus-free", "The drive is encrypted"], "a": 0 },
+    { "q": "The 'Preservation' phase of forensics ensures that:", "o": ["The evidence is securely stored and protected from physical and digital alteration", "The computer is left at the crime scene", "The data is published online", "Passwords are changed"], "a": 0 },
+    { "q": "What is a 'Faraday Bag' used for in evidence handling?", "o": ["To protect evidence from water damage", "To block electromagnetic fields and prevent wireless devices (phones) from connecting to networks and being remotely wiped", "To carry heavy servers", "To cool down overheated devices"], "a": 1 },
+    { "q": "During the 'Examination' phase, an investigator might:", "o": ["Write the final report", "Recover deleted files and extract hidden data from the forensic image", "Return the computer to the owner", "Testify in court"], "a": 1 },
+    { "q": "The 'Analysis' phase involves:", "o": ["Making a copy of the drive", "Interpreting the extracted data to reconstruct events and draw conclusions relevant to the case", "Arresting the suspect", "Putting the device in an evidence bag"], "a": 1 },
+    { "q": "The final phase of the digital forensic process is:", "o": ["Reporting / Presentation", "Collection", "Hashing", "Wiping"], "a": 0 },
+    { "q": "A forensic report must be:", "o": ["Highly technical and impossible for non-experts to read", "Accurate, objective, documented clearly, and understandable to legal professionals and juries", "Biased toward the prosecution", "Written before the analysis is complete"], "a": 1 },
+    { "q": "Slack Space on a hard drive is:", "o": ["The space used by the operating system", "The unused space between the end of a file and the end of the cluster it occupies, which can hide data", "The space outside the computer case", "The space taken by the Master Boot Record"], "a": 1 },
+    { "q": "Unallocated Space refers to:", "o": ["Space reserved for RAM", "Space on a drive that is not currently assigned to a file, where deleted files can often be recovered", "The cloud storage limit", "Formatted partitions"], "a": 1 },
+    { "q": "Order of Volatility dictates that an investigator should collect data starting from:", "o": ["The most permanent to the least permanent", "The most volatile (e.g., CPU registers, RAM) to the least volatile (e.g., Hard drives, backups)", "The heaviest component to the lightest", "The newest file to the oldest file"], "a": 1 },
+    { "q": "Which of the following is the MOST volatile according to the Order of Volatility?", "o": ["Network topology", "Hard Disk Drive", "CPU Registers and Cache", "System RAM"], "a": 2 },
+    { "q": "Pulling the power plug on a running system at a crime scene will immediately destroy:", "o": ["Data on the hard drive", "Data residing in RAM (Volatile Memory)", "CD-ROM data", "BIOS settings"], "a": 1 },
+    { "q": "Cross-contamination in digital forensics means:", "o": ["Mixing physical evidence with digital evidence", "Using the same analysis drive for multiple cases without properly wiping it first, mixing data from different investigations", "Crossing borders with evidence", "Installing two antivirus programs"], "a": 1 },
+    { "q": "What is 'Metadata'?", "o": ["Data about the suspect", "Data about data (e.g., file creation date, author, last modified date)", "Encrypted data", "Corrupted data"], "a": 1 },
+    { "q": "A 'Bit-stream copy' or 'Forensic Clone' differs from a standard copy/paste because:", "o": ["It is faster", "It copies every single bit, including hidden files, deleted files, slack space, and unallocated space", "It only copies text documents", "It compresses the files"], "a": 1 },
+    { "q": "DFRWS stands for:", "o": ["Digital Forensics Research Workshop", "Data File Recovery Workflow System", "Digital File Restoration Web Service", "Department of Forensic Rules and Working Standards"], "a": 0 },
+    { "q": "The DFRWS Investigative Model (2001) consists of how many phases?", "o": ["4", "6", "9", "17"], "a": 1 },
+    { "q": "Which of the following represents the correct sequence of the DFRWS model phases?", "o": ["Collection, Preservation, Identification, Analysis, Examination, Presentation", "Identification, Preservation, Collection, Examination, Analysis, Presentation", "Preparation, Collection, Examination, Analysis, Reporting, Returning", "Assessment, Acquisition, Analysis, Archiving"], "a": 1 },
+    { "q": "In the DFRWS model, the 'Identification' phase includes tasks like:", "o": ["Making a bit-stream copy", "Profile detection, system monitoring, and identifying the incident", "Testifying in court", "Recovering deleted files"], "a": 1 },
+    { "q": "ADFM stands for:", "o": ["Advanced Digital File Method", "Abstract Digital Forensics Model", "Automated Data Forensic Machine", "Applied Digital Framework Model"], "a": 1 },
+    { "q": "The Abstract Digital Forensics Model (ADFM) was proposed by:", "o": ["Carrier and Spafford", "Reith, Carr, and Gunsch", "Brian Carrier", "Peter Stephenson"], "a": 1 },
+    { "q": "How many phases does the ADFM model contain?", "o": ["6", "9", "17", "4"], "a": 1 },
+    { "q": "Which phase was introduced at the VERY BEGINNING of the ADFM model, before Identification?", "o": ["Presentation", "Returning Evidence", "Preparation", "Wiping"], "a": 2 },
+    { "q": "What is the purpose of the 'Approach Strategy' phase in the ADFM model?", "o": ["To attack the suspect", "To formulate a procedure to maximize evidence recovery while minimizing impact to the victim", "To write the final report", "To format the drives"], "a": 1 },
+    { "q": "The final phase added by the ADFM model, which occurs after Presentation, is:", "o": ["Collection", "Returning Evidence", "Examination", "Erasing Data"], "a": 1 },
+    { "q": "IDIP stands for:", "o": ["Integrated Digital Investigation Process", "International Data Investigation Protocol", "Internet Digital Information Process", "Incident Detection and Investigation Plan"], "a": 0 },
+    { "q": "The IDIP model was developed by:", "o": ["Reith and Gunsch", "Carrier and Spafford (2003)", "Ciardhuain", "DFRWS"], "a": 1 },
+    { "q": "A unique feature of the IDIP model is that it integrates:", "o": ["Windows and Mac environments", "Physical crime scene investigation and Digital crime scene investigation", "Hacking and Forensics", "Civil and Criminal law"], "a": 1 },
+    { "q": "How many total phases are there in the IDIP model?", "o": ["6", "9", "17", "5"], "a": 2 },
+    { "q": "The 17 phases of the IDIP model are organized into how many macro groups/tiers?", "o": ["3", "5", "10", "17"], "a": 1 },
+    { "q": "What is the first group in the IDIP model called?", "o": ["Deployment Phase", "Readiness Phases (Operations and Infrastructure readiness)", "Digital Crime Scene Investigation", "Review Phase"], "a": 1 },
+    { "q": "The IDIP model essentially treats the computer as:", "o": ["A software development lifecycle", "A digital crime scene, applying physical crime scene principles to the digital realm", "A game of chess", "A financial audit"], "a": 1 },
+    { "q": "EEDIP stands for:", "o": ["Electronic Evidence Discovery and Identification Protocol", "End to End Digital Investigation Process", "Extended Evidence Data Investigation Phase", "Early Extraction of Digital Information Protocol"], "a": 1 },
+    { "q": "The EEDIP model was introduced by:", "o": ["Peter Stephenson (2003)", "Brian Carrier", "DFRWS", "Reith"], "a": 0 },
+    { "q": "A key focus of the EEDIP model is:", "o": ["Only analyzing RAM", "Investigating digital evidence in an end-to-end process from incident detection to case closure", "Bypassing passwords", "Generating fake evidence"], "a": 1 },
+    { "q": "'An extended model for cybercrime investigation' was proposed by:", "o": ["Spafford", "Seamus Ciardhuain (2004)", "Stephenson", "DFRWS"], "a": 1 },
+    { "q": "What is the primary focus of Ciardhuain's Extended Model?", "o": ["It focuses only on hard drive extraction", "It focuses heavily on the 'Information flow' and the complete investigation environment, not just technical steps", "It focuses on mobile phones only", "It focuses on ignoring physical evidence"], "a": 1 },
+    { "q": "UMDFPM stands for:", "o": ["Universal Machine Data Forensic Process Model", "Unified Modeling Language (UML) modeling of digital forensic process model", "Unlimited Memory Digital Forensics Protocol Module", "User Managed Data Forensic Process Module"], "a": 1 },
+    { "q": "What is the primary advantage of UMDFPM?", "o": ["It runs faster than other models", "It uses formal UML use-case and activity diagrams to standardize and formally document the forensic process", "It is a hardware device", "It deletes malware automatically"], "a": 1 },
+    { "q": "Which phase of the DFRWS model involves data extraction, extracting hidden data, and recovering deleted files?", "o": ["Identification", "Preservation", "Examination", "Presentation"], "a": 2 },
+    { "q": "The IDIP model's 'Deployment Phases' group involves:", "o": ["Buying computers", "Detection and Notification of the incident", "Returning the evidence", "Archiving the report"], "a": 1 },
+    { "q": "In IDIP, the 'Physical Crime Scene Investigation Phases' group involves:", "o": ["Analyzing malware code", "Preservation, Survey, Documentation, Search and Collection of physical hardware", "Breaking passwords", "Network packet sniffing"], "a": 1 },
+    { "q": "In IDIP, the 'Digital Crime Scene Investigation Phases' group involves:", "o": ["Securing the physical room", "Preservation, Survey, Documentation, Search and Collection of digital data within the hardware", "Arresting the suspect", "Reviewing the final report"], "a": 1 },
+    { "q": "The final group in the IDIP model is the:", "o": ["Readiness Phase", "Review Phase (combining findings and reflecting on the process)", "Deployment Phase", "Arrest Phase"], "a": 1 },
+    { "q": "In the ADFM model, what happens during the 'Preparation' phase?", "o": ["Extracting files from the hard drive", "Preparing tools, identifying techniques, and getting management support before the investigation starts", "Returning the computer", "Testifying in court"], "a": 1 },
+    { "q": "Ethical Hacking is defined as:", "o": ["Hacking into systems to steal money and returning half of it", "Authorized practice of bypassing system security to identify potential data breaches and threats in a network", "Creating viruses for fun", "Guessing user passwords illegally"], "a": 1 },
+    { "q": "Ethical Hackers are also commonly known as:", "o": ["Black Hat Hackers", "White Hat Hackers", "Red Hat Hackers", "Cyber Terrorists"], "a": 1 },
+    { "q": "What is the primary difference between an Ethical Hacker and a Malicious Hacker?", "o": ["Ethical hackers use different programming languages", "Ethical hackers have explicit permission from the system owner to test security", "Ethical hackers are always government employees", "Malicious hackers are faster"], "a": 1 },
+    { "q": "Which of the following is a core principle of the CIA Triad in information security?", "o": ["Confidentiality, Integrity, Availability", "Cyber, Intelligence, Agency", "Control, Internet, Access", "Computer, Information, Algorithm"], "a": 0 },
+    { "q": "Confidentiality ensures that:", "o": ["Data is accessible to everyone", "Data is only accessed by authorized individuals", "Data cannot be deleted", "The network is always online"], "a": 1 },
+    { "q": "Integrity ensures that:", "o": ["The server is physically safe", "Data remains accurate and unaltered by unauthorized parties", "Data is completely hidden", "The system uses strong passwords"], "a": 1 },
+    { "q": "A hacker who breaks into computer networks with malicious intent, such as stealing data or causing damage, is a:", "o": ["White Hat Hacker", "Black Hat Hacker", "Grey Hat Hacker", "Blue Hat Hacker"], "a": 1 },
+    { "q": "A 'Grey Hat' hacker is someone who:", "o": ["Only hacks on cloudy days", "Hacks into systems without permission but usually without malicious intent, often notifying the administrator afterward", "Is hired by the government", "Only hacks mobile phones"], "a": 1 },
+    { "q": "A 'Script Kiddie' refers to:", "o": ["A highly skilled programmer", "An unskilled individual who uses pre-written scripts and tools created by others to launch attacks", "A child actor in a cyber movie", "A professional penetration tester"], "a": 1 },
+    { "q": "Hackers who use their skills to promote a political or social agenda are called:", "o": ["Script Kiddies", "Hacktivists", "State-sponsored Hackers", "Green Hats"], "a": 1 },
+    { "q": "State-Sponsored Hackers are typically:", "o": ["Amateurs testing their skills", "Highly skilled individuals or groups funded by a government to conduct cyber espionage or warfare against other nations", "Hackers who target state schools", "Hackers who steal credit cards for personal gain"], "a": 1 },
+    { "q": "A 'Green Hat' hacker is generally considered to be:", "o": ["An environmental activist", "A beginner who is eager to learn and improve their hacking skills", "A hacker who uses Apple products", "The most dangerous type of hacker"], "a": 1 },
+    { "q": "Penetration Testing (Pen Testing) is the practice of:", "o": ["Testing the ink in pens", "Simulating a cyber attack against a system to check for exploitable vulnerabilities", "Installing anti-virus software", "Fixing physical hardware issues"], "a": 1 },
+    { "q": "An ethical hacker must always adhere to which rule?", "o": ["Never report vulnerabilities", "Stay within the scope defined by the client and maintain confidentiality", "Delete data to prove the system is vulnerable", "Exploit the vulnerability for personal profit"], "a": 1 },
+    { "q": "Red Teaming in cybersecurity refers to:", "o": ["The defending security team", "An advanced, multi-layered simulated attack acting as the enemy (adversary) to test the organization's detection and response capabilities", "Installing firewalls", "Managing user accounts"], "a": 1 },
+    { "q": "What is 'Phishing'?", "o": ["Fishing for cables in a server room", "A social engineering attack where an attacker sends fraudulent emails masquerading as a reputable entity to steal sensitive data", "Encrypting the hard drive", "Guessing passwords"], "a": 1 },
+    { "q": "AI-powered Phishing Scams are more dangerous than traditional phishing because:", "o": ["They are slower", "AI (like LLMs) can generate highly convincing, personalized, and grammatically perfect emails at scale, making them harder to detect", "AI refuses to send emails", "AI deletes the user's inbox"], "a": 1 },
+    { "q": "Ransomware is a type of malware that:", "o": ["Displays unwanted advertisements", "Encrypts a victim's files and demands a payment in exchange for the decryption key", "Steals Wi-Fi passwords", "Speeds up the computer"], "a": 1 },
+    { "q": "What defines 'Ransomware 2.0' (or Double Extortion)?", "o": ["It demands payment in fiat currency", "It not only encrypts the data but also steals (exfiltrates) it, threatening to leak the sensitive data publicly if the ransom is not paid", "It infects the computer twice", "It encrypts the data twice"], "a": 1 },
+    { "q": "Why are IoT (Internet of Things) devices frequently exploited by hackers?", "o": ["They have too much security", "They often have weak default passwords, lack encryption, and are rarely updated", "They are not connected to the internet", "They do not have processors"], "a": 1 },
+    { "q": "A massive network of compromised IoT devices controlled by an attacker is called a:", "o": ["Botnet (e.g., Mirai botnet)", "Ransomware", "Firewall", "Server farm"], "a": 0 },
+    { "q": "Deep Fake Technology uses AI to:", "o": ["Create extremely deep databases", "Generate hyper-realistic synthetic media (video or audio) depicting a person saying or doing things they never did", "Clean up blurry images", "Encrypt video files"], "a": 1 },
+    { "q": "How can Deep Fakes be used in Network Hacking/Social Engineering?", "o": ["By rendering graphics faster", "By using fake audio of a CEO to trick an employee into transferring funds (Business Email Compromise/Vishing)", "By physically breaking routers", "By updating software"], "a": 1 },
+    { "q": "What is an 'OS Downgrade Attack'?", "o": ["Upgrading the OS to a paid version for free", "Forcing a device to roll back to an older, vulnerable version of an Operating System to exploit patched vulnerabilities", "Making the OS interface look older", "Deleting the OS completely"], "a": 1 },
+    { "q": "Firmware level exploits are particularly dangerous because:", "o": ["They are very easy to remove", "They reside beneath the Operating System (in the hardware's memory), making them invisible to standard antivirus software and persistent even after OS reinstallation", "They only affect the computer mouse", "They only change screen brightness"], "a": 1 },
+    { "q": "A 'Rootkit' or 'Bootkit' is an example of an attack on the:", "o": ["Web browser", "OS and Firmware level", "Printer", "Monitor"], "a": 1 },
+    { "q": "WAF stands for:", "o": ["Web Application Firewall", "Wide Area Frequency", "Wireless Access Filter", "Web Authorization Form"], "a": 0 },
+    { "q": "The purpose of a WAF is to:", "o": ["Speed up website loading", "Protect web applications by filtering and monitoring HTTP traffic between a web application and the internet", "Block all internet access", "Generate HTML code"], "a": 1 },
+    { "q": "WAF Bypass Techniques involve:", "o": ["Asking the admin to turn off the firewall", "Using techniques like obfuscation, encoding (e.g., URL encoding), or fragmentation to slip malicious payloads past the firewall rules", "Connecting directly to the router with a cable", "Using a different web browser"], "a": 1 },
+    { "q": "SQL Injection (SQLi) is a type of:", "o": ["Network Hacking", "Application Hacking", "Hardware Hacking", "Firmware Exploit"], "a": 1 },
+    { "q": "What is a 'Zero-Day Exploit'?", "o": ["An attack that occurs only at midnight", "A cyber attack that exploits a software vulnerability on the same day it becomes known, before the software vendor has released a patch", "A virus that deletes itself in zero days", "A hack that takes zero effort"], "a": 1 },
+    { "q": "Cross-Site Scripting (XSS) is an application layer attack where the attacker:", "o": ["Steals the server hardware", "Injects malicious executable scripts into trusted websites, which then execute in the victim's browser", "Blocks the website's IP address", "Formats the database"], "a": 1 },
+    { "q": "Which of the following is a defense against OS Downgrade attacks?", "o": ["Never using an OS", "Implementing 'Anti-Rollback' protection in the device's bootloader", "Formatting the hard drive daily", "Using a weak password"], "a": 1 },
+    { "q": "Which type of hacking targets the UEFI/BIOS of a motherboard?", "o": ["Phishing", "Firmware level exploit", "Application hacking", "SQL Injection"], "a": 1 },
+    { "q": "Credential Stuffing is an application attack where:", "o": ["Attackers stuff cables into open ports", "Attackers use stolen username/password pairs from one breach to attempt automated logins on entirely different websites", "Attackers create fake IDs physically", "Attackers delete credentials"], "a": 1 },
+    { "q": "Denial of Service (DoS) attacks primarily target which component of the CIA triad?", "o": ["Confidentiality", "Integrity", "Availability", "Authorization"], "a": 2 },
+    { "q": "Which of the following is a common method for executing an IoT Exploit?", "o": ["Using complex cryptography", "Scanning the internet for open Telnet/SSH ports with factory default credentials (e.g., admin/admin)", "Sending paper mail to the device", "Updating the device firmware"], "a": 1 },
+    { "q": "In network hacking, what is 'Packet Sniffing'?", "o": ["Smelling the server room", "Intercepting and logging traffic that passes over a digital network", "Sending empty packets", "Dropping all network connections"], "a": 1 },
+    { "q": "Which technology can severely mitigate the effectiveness of Packet Sniffing?", "o": ["Using an older router", "End-to-End Encryption (like HTTPS or VPNs)", "Increasing bandwidth", "Using a wired mouse"], "a": 1 },
+    { "q": "A 'Man-in-the-Middle' (MitM) attack is classified as:", "o": ["Hardware Hacking", "Network Hacking", "Physical Hacking", "OS Hacking"], "a": 1 },
+    { "q": "To prevent SQL Injection, developers should use:", "o": ["Plain text passwords", "Prepared statements and parameterized queries", "Longer variable names", "Older databases"], "a": 1 },
+    { "q": "Which of the following is a symptom of Ransomware 2.0?", "o": ["The computer runs faster", "Files are inaccessible (encrypted) and a ransom note threatens to publish the stolen data online", "The monitor turns off", "The keyboard stops working"], "a": 1 },
+    { "q": "A 'Directory Traversal' attack is a type of:", "o": ["Application Hacking", "Network Hacking", "Hardware Hacking", "Firmware Exploit"], "a": 0 },
+    { "q": "Bypassing a Web Application Firewall (WAF) using SQL comments (e.g., admin' --) is an example of:", "o": ["AI Phishing", "WAF Bypass Technique", "Deep Fake", "OS Downgrade"], "a": 1 },
+    { "q": "A patch released by a software vendor is the primary defense against:", "o": ["Strong passwords", "Zero-day and known vulnerabilities", "Physical theft", "Social engineering"], "a": 1 },
+    { "q": "The Information Technology (IT) Act of India was first enacted in the year:", "o": ["1990", "2000", "2008", "2013"], "a": 1 },
+    { "q": "The primary objective of the IT Act 2000 was to:", "o": ["Ban the use of computers", "Provide legal recognition for electronic transactions and facilitate e-commerce/e-governance", "Promote physical mail", "Establish computer science colleges"], "a": 1 },
+    { "q": "Which section of the IT Act deals with 'Damage to computer, computer system, etc.' (including virus introduction and unauthorized access)?", "o": ["Section 43", "Section 66", "Section 67", "Section 65"], "a": 0 },
+    { "q": "Which section of the IT Act specifically deals with 'Computer Related Offences' (hacking)?", "o": ["Section 43", "Section 66", "Section 66A", "Section 67"], "a": 1 },
+    { "q": "A major amendment to the IT Act was passed in the year:", "o": ["2004", "2008", "2015", "2020"], "a": 1 },
+    { "q": "The IT Act 2008 Amendment introduced Section 66C, which deals with:", "o": ["Identity Theft", "Publishing obscene material", "Cyber terrorism", "Child pornography"], "a": 0 },
+    { "q": "Section 66D of the IT Act (introduced in 2008) deals with:", "o": ["Hacking", "Cheating by personation by using computer resource (Phishing)", "Video piracy", "Spam emails"], "a": 1 },
+    { "q": "Which controversial section of the IT Act 2008 (dealing with offensive messages through communication services) was struck down by the Supreme Court in 2015 for violating freedom of speech?", "o": ["Section 66A", "Section 66B", "Section 66C", "Section 66E"], "a": 0 },
+    { "q": "Section 66E of the IT Act deals with:", "o": ["E-commerce taxation", "Violation of privacy (capturing/publishing images of private areas without consent)", "Electronic signatures", "Network architecture"], "a": 1 },
+    { "q": "Section 66F of the IT Act deals with:", "o": ["Cyber Terrorism", "Identity Theft", "Phishing", "Software piracy"], "a": 0 },
+    { "q": "NCSP stands for:", "o": ["National Computer Science Program", "National Cyber Security Policy", "Network Control and Security Protocol", "National Cyber Surveillance Project"], "a": 1 },
+    { "q": "The National Cyber Security Policy (NCSP) was released in the year:", "o": ["2000", "2008", "2013", "2020"], "a": 2 },
+    { "q": "What was a key objective of the NCSP 2013?", "o": ["To ban social media", "To build a secure and resilient cyberspace for citizens, businesses, and the government", "To promote physical letters", "To stop international trade"], "a": 1 },
+    { "q": "The NCSP 2013 aimed to create a workforce of how many cyber security professionals?", "o": ["50,000", "500,000", "1 Million", "10 Million"], "a": 1 },
+    { "q": "DPDP Act 2023 stands for:", "o": ["Digital Public Data Protection Act", "Digital Personal Data Protection Act", "Data Privacy and Digital Policy Act", "Direct Personal Data Provision Act"], "a": 1 },
+    { "q": "In the DPDP Act 2023, the individual whose data is being collected is referred to as the:", "o": ["Data Fiduciary", "Data Principal", "Data Processor", "Data Miner"], "a": 1 },
+    { "q": "In the DPDP Act 2023, the entity determining the purpose and means of processing personal data is the:", "o": ["Data Principal", "Data Fiduciary", "Data Subject", "Hacker"], "a": 1 },
+    { "q": "The DPDP Act 2023 mandates that personal data can only be processed if there is:", "o": ["Clear and specific consent from the Data Principal (or for legitimate uses)", "A financial transaction involved", "A government order for every file", "A physical paper form signed"], "a": 0 },
+    { "q": "CCPWC Scheme stands for:", "o": ["Cyber Crime Prevention against Women and Children", "Computer Control Protocol for Web Commerce", "Cyber Cell for Protection of Web Content", "Central Committee for Public Web Control"], "a": 0 },
+    { "q": "Under the CCPWC Scheme, what platform was launched for citizens to report cybercrimes online?", "o": ["The National Cyber Crime Reporting Portal (cybercrime.gov.in)", "Facebook", "The IT Act Website", "State Police Twitter Handles"], "a": 0 }
+  ]
+};
+
+let currentSet = [];
+let currentIndex = 0;
+let userScore = 0;
+
+function initQuiz(type) {
+    if (type === 'full') {
+        currentSet = [].concat(...Object.values(mcqData));
+        document.getElementById('unit-title').innerText = "Full Syllabus Exam";
+    } else {
+        currentSet = mcqData[type];
+        document.getElementById('unit-title').innerText = "Unit " + type;
+    }
+    
+    currentIndex = 0;
+    userScore = 0;
+    document.getElementById('menu-area').style.display = 'none';
+    document.getElementById('quiz-area').style.display = 'block';
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const data = currentSet[currentIndex];
+    document.getElementById('q-text').innerText = (currentIndex + 1) + ". " + data.q;
+    document.getElementById('q-count').innerText = `Question ${currentIndex + 1} of ${currentSet.length}`;
+    document.getElementById('score-counter').innerText = `Score: ${userScore}`;
+    document.getElementById('progress-bar').style.width = ((currentIndex) / currentSet.length * 100) + "%";
+
+    const optionsGrid = document.getElementById('options-grid');
+    optionsGrid.innerHTML = '';
+    
+    data.o.forEach((option, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = option;
+        btn.onclick = () => selectOption(idx, data.a, btn);
+        optionsGrid.appendChild(btn);
+    });
+    document.getElementById('next-btn').disabled = true;
+}
+
+function selectOption(idx, correctIdx, element) {
+    const allOptions = document.querySelectorAll('.option');
+    allOptions.forEach(opt => opt.classList.add('disabled'));
+
+    if (idx === correctIdx) {
+        element.classList.add('correct');
+        userScore++;
+    } else {
+        element.classList.add('incorrect');
+        allOptions[correctIdx].classList.add('correct');
+    }
+    document.getElementById('next-btn').disabled = false;
+}
+
+function loadNextQuestion() {
+    currentIndex++;
+    if (currentIndex < currentSet.length) {
+        renderQuestion();
+    } else {
+        alert(`Exam Completed! Final Score: ${userScore} / ${currentSet.length}`);
+        exitToMenu();
+    }
+}
+
+function exitToMenu() {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('menu-area').style.display = 'grid';
+}
+</script>
+
+</body>
+</html>
